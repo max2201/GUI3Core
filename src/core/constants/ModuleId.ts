@@ -1,0 +1,5 @@
+export const RequestsModuleId = 'RequestsModule'
+export const NotificationsModuleId = 'Notifications'
+export const MetricsModuleId = 'MetricsModuleId'
+export const TelephonyModuleId = 'TelephonyModule'
+export const CallAnalysisModule = 'CallAnalysisModule'

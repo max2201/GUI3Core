@@ -1,0 +1,22 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": ["env.d.ts", "auto-imports.d.ts", "components.d.ts", "src/**/*", "src/**/*.vue"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ES2021",
+    "lib": ["ES2021", "ESNext.String", "DOM"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@c/*": ["./src/components/*"],
+      "@m/*": ["./src/modules/*"]
+    },
+    "types": ["vite-plugin-svg-icons/client", "node"],
+    "noImplicitAny": false
+  },
+
+  "references": [
+    {
+      "path": "./tsconfig.config.json"
+    }
+  ]
+}

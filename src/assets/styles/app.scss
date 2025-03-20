@@ -1,0 +1,26 @@
+@import 'utils/index';
+@import 'theme';
+@import 'zIndexVars';
+
+@import 'vendor/normalize';
+@import 'vendor/hamburger';
+@import 'floating-vue/dist/style.css';
+@import 'vue-toastification/dist/index.css';
+
+@import 'layout/general';
+@import 'layout/grid';
+@import 'layout/utils';
+@import 'layout/colors';
+
+@import 'elements/typography';
+@import 'elements/images';
+@import 'elements/transitions';
+@import 'elements/toast';
+@import 'elements/popper';
+@import 'elements/pills';
+@import 'components/CallCards';
+@import 'components/Notifications';
+@import 'components/Tasks';
+@import 'components/Kanban';
+@import 'components/UploadFiles';
+@import 'vue-select/dist/vue-select.css';

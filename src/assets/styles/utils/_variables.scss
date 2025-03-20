@@ -1,0 +1,142 @@
+// EASINGS
+$ease: ease-in-out;
+
+// LAYOUT
+$mobile-s: 414;
+$sm: 575;
+$md: 767;
+$lg: 991;
+$xl: 1199;
+$hd: 1439;
+
+// 12-col GRID
+$col1: 8.333333%;
+$col2: 16.666667%;
+$col3: 25%;
+$col4: 33.333333%;
+$col5: 41.666667%;
+$col6: 50%;
+$col7: 58.333333%;
+$col8: 66.666667%;
+$col9: 75%;
+$col10: 83.333333%;
+$col11: 91.666667%;
+$col12: 100%;
+
+$system-color-0: #8AC4FF;
+$system-color-1: #de1a1a;
+$system-color-2: #7fff00;
+$system-color-3: #E3B505;
+$system-color-4: #C5C3C6;
+$system-color-5: #064789;
+$system-color-6: #30D5C8;
+$system-color-7: #B744B8;
+
+$system-color-with-alpha-0: #8AC4FF10;
+$system-color-with-alpha-1: #de1a1a10;
+$system-color-with-alpha-2: #7fff0010;
+$system-color-with-alpha-3: #E3B50510;
+$system-color-with-alpha-4: #C5C3C610;
+$system-color-with-alpha-5: #06478910;
+$system-color-with-alpha-6: #30D5C810;
+$system-color-with-alpha-7: #B744B810;
+
+.system-color-0 {
+    color: $system-color-0 !important;
+}
+.system-color-1 {
+    color: $system-color-1 !important;
+}
+.system-color-2 {
+    color: $system-color-2 !important;
+}
+.system-color-3 {
+    color: $system-color-3 !important;
+}
+.system-color-4 {
+    color: $system-color-4 !important;
+}
+.system-color-5 {
+    color: $system-color-5 !important;
+}
+.system-color-6 {
+    color: $system-color-6 !important;
+}
+.system-color-7 {
+    color: $system-color-7 !important;
+}
+
+.system-border-color-0 {
+    border-color: $system-color-0 !important;
+}
+.system-border-color-1 {
+    border-color: $system-color-1 !important;
+}
+.system-border-color-2 {
+    border-color: $system-color-2 !important;
+}
+.system-border-color-3 {
+    border-color: $system-color-3 !important;
+}
+.system-border-color-4 {
+    border-color: $system-color-4 !important;
+}
+.system-border-color-5 {
+    border-color: $system-color-5 !important;
+}
+.system-border-color-6 {
+    border-color: $system-color-6 !important;
+}
+.system-border-color-7 {
+    border-color: $system-color-7 !important;
+}
+
+.system-background-color-0 {
+    background-color: $system-color-0 !important;
+}
+.system-background-color-1 {
+    background-color: $system-color-1 !important;
+}
+.system-background-color-2 {
+    background-color: $system-color-2 !important;
+}
+.system-background-color-3 {
+    background-color: $system-color-3 !important;
+}
+.system-background-color-4 {
+    background-color: $system-color-4 !important;
+}
+.system-background-color-5 {
+    background-color: $system-color-5 !important;
+}
+.system-background-color-6 {
+    background-color: $system-color-6 !important;
+}
+.system-background-color-7 {
+    background-color: $system-color-7 !important;
+}
+
+.system-background-color-with-alpha-0 {
+    background-color: $system-color-with-alpha-0 !important;
+}
+.system-background-color-with-alpha-1 {
+    background-color: $system-color-with-alpha-1 !important;
+}
+.system-background-color-with-alpha-2 {
+    background-color: $system-color-with-alpha-2 !important;
+}
+.system-background-color-with-alpha-3 {
+    background-color: $system-color-with-alpha-3 !important;
+}
+.system-background-color-with-alpha-4 {
+    background-color: $system-color-with-alpha-4 !important;
+}
+.system-background-color-with-alpha-5 {
+    background-color: $system-color-with-alpha-5 !important;
+}
+.system-background-color-with-alpha-6 {
+    background-color: $system-color-with-alpha-6 !important;
+}
+.system-background-color-with-alpha-7 {
+    background-color: $system-color-with-alpha-7 !important;
+}

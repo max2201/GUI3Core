@@ -1,0 +1,130 @@
+@function HexToRGB($hex) {
+  @return red($hex), green($hex), blue($hex);
+}
+
+:root {
+  // fonts
+  --font-base: 'Inter', sans-serif;
+  --font-system: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Ubuntu',
+    'Cantarell', 'Arial', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  --container-main: 9999px;
+  --container-narrow: 848px;
+  --container-mini: 420px;
+
+  --sidebar-width: 60px;
+  --sidepanel-width: 70px;
+
+  // ui
+  --card-border-radius: 16px;
+  --button-border-radius: 6px;
+  --input-border-radius: 5px;
+  --map-border-radius: 12px;
+}
+
+.theme-main {
+  // scheme
+  --color-background: #f0f5f9;
+  --color-font: #23282f;
+  --color-font-rgb: #{HexToRGB(#23282f)};
+  --color-font-2: #373f54;
+  --color-font-invert: #fff;
+  --color-font-disabled: #a3b4c1;
+  --color-gray: #8990a2;
+  --color-disabled: #8996a4;
+  --color-unactive: #a9b6Bf;
+  --color-bg: #f5f5f5;
+  --color-bg-darken: #E3EBF1;
+  --color-bg-active: #1A8FF2;
+  --color-bg-active-10alpha: #1A8FF21A;
+  --color-border: #d5dde3;
+  --color-separator: #e5e5e5;
+
+  // brand colors
+  --color-primary: #1a8ff2;
+  --color-primary-rgb: #{HexToRGB(#1a8ff2)};
+  --color-primary-hover: #9fc2dd;
+  --color-primary-selected: #E1F2FF;
+  --color-green: #458940;
+  --color-green-light: #DBF6CD;
+  --color-green-light-border: #C9E7B9;
+  --color-red: #F8393A;
+  --color-yellow: #f2c94c;
+
+  // components
+  --header-background: #373f54;
+  --product-background: #fff;
+  --component-background: #fff;
+  --modal-background: rgba(0, 0, 0, 0.55);
+  --modal-body-background: #fff;
+  --loader-overlay-background: rgba(255, 255, 255, 0.5);
+  --search-background: #fff;
+  --component-hover: #E4E9EE;
+
+  
+  --component-gray: #7685AE;
+  --component-gray-font: #fff;
+  --component-gray-hover: #5B6C9A;
+  --component-gray-background: #F0F5F9;
+  
+  --component-primary: #1a8ff2;
+  --component-primary-background: #E1F2FF;
+  --component-primary-hover: #0473D1;
+  // --component-primary-hover: #9fc2dd;
+  --component-primary-color: #1a8ff2;
+  --component-primary-color-hover: #fff;
+  --component-primary-border: #bfdff6;
+
+  --component-blue-background: #E6F4FF;
+
+  --component-danger: #F8393A;
+  --component-danger-background: #FFF4EF;
+  --component-danger-hover: #B90001;
+  --component-danger-color: #ffffff;
+
+  --component-warning: #f2c94c;
+  --component-warning-background: #f2c94c;
+  --component-warning-background-2: #FBA600;
+  --component-warning-background-light: #FFFDE3;
+  --component-warning-backgroud-hover: #F2AF4B;
+  --component-warning-color: #ffffff;
+
+  --component-green-background: #66AA61;
+  --component-green-background-light: #EBFAE5;
+  --component-green-border: #458940;
+  --component-green-hover: #458940;
+  --component-green-backgroud-hover: #010201;
+  --component-green-color: #ffffff;
+
+  --component-purple-background: #52489C;
+  --component-purple-color: #ffffff;
+  --component-purple-backgroud-hover: #42389C;
+
+  // border
+  --border-default: 1px solid #d5dde3;
+
+  // ui
+  --input-background-color: #ffffff;
+  --input-hover-background-color: #1a8ff2;
+
+  //shadows
+  --box-shadow-small: 0px 4px 10px rgba(6, 28, 40, 0.22);
+  --box-shadow-large: 0px 8px 20px rgba(6, 28, 40, 0.22);
+  --box-shadow-extra-large: 0px 26px 44px -10px rgba(57, 81, 219, 0.27);
+
+  // badges
+  --badge-green-color: #439530;
+  --badge-green-background: #cffec4;
+  --badge-blue-color: #1888ac;
+  --badge-blue-background: #c9f0fc;
+
+  --font-size-standart: 12px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+  --font-size-24: 24px;
+  --font-size-32: 32px;
+
+  --font-weight-400: 400;
+  --font-weight-500: 500;
+  --font-weight-600: 600;
+}

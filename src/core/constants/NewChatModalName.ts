@@ -1,0 +1,1 @@
+export const NewChatModalName = 'new-chat-modal'

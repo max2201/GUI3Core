@@ -1,0 +1,7 @@
+export const AddModalName = 'object-flag-add'
+export const AddNotyModal = 'add-noty-modal'
+export const NotificationsModal = 'notys-modal'
+export const CodeConfirmModal = 'confirm-code'
+export const GroupOperationResult = 'group-operation-result'
+export const ExistLockModal = 'exist-lock'
+export const ConfirmMerge = 'confirm-merge'

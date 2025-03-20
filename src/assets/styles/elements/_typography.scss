@@ -1,0 +1,217 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+.h1-title,
+.h2-title,
+.h3-title,
+.h4-title,
+.h5-title,
+.h6-title {
+  font-weight: var(--font-weight-500);
+}
+
+.h1-title {
+  font-weight: var(--font-weight-600);
+  font-size: 32px;
+  line-height: 1.3;
+}
+
+.h2-title {
+  font-size: 28px;
+  line-height: calc(38 / 28);
+}
+
+.h3-title {
+  font-size: var(--font-size-24);
+  line-height: calc(30 / 20);
+}
+
+.h4-title {
+  font-size: 20px;
+  line-height: calc(30 / 20);
+}
+
+.h5-title {
+  font-size: 18px;
+  font-weight: var(--font-weight-600);
+  line-height: 1.3;
+}
+
+.h6-title {
+  font-size: var(--font-size-16);
+  line-height: calc(24 / 16);
+}
+
+@include r($md) {
+  .h2-title {
+    font-size: 20px;
+  }
+}
+
+@each $size, $px in $sizes {
+  @include r(#{$px}) {
+    .h1-title-#{$size} {
+      font-size: 48px;
+      line-height: calc(38 / 28);
+    }
+
+    .h2-title-#{$size} {
+      font-size: 28px;
+      line-height: calc(38 / 28);
+    }
+
+    .h3-title-#{$size} {
+      font-size: var(--font-size-24);
+      line-height: calc(30 / 20);
+    }
+
+    .h4-title-#{$size} {
+      font-size: 20px;
+      line-height: calc(30 / 20);
+    }
+
+    .h5-title-#{$size} {
+      font-size: 18px;
+      font-weight: var(--font-weight-600);
+      line-height: 1.3;
+    }
+
+    .h6-title-#{$size} {
+      font-size: var(--font-size-16);
+      line-height: calc(24 / 16);
+    }
+  }
+}
+
+// paragraphs
+p {
+  margin: 0;
+  strong {
+    font-weight: var(--font-weight-600);
+  }
+  & + p {
+    margin-top: 1em;
+  }
+  a {
+    color: var(--color-primary);
+  }
+}
+
+.text-accent {
+  font-weight: var(--font-weight-600);
+}
+
+.text-xl {
+  font-weight: var(--font-weight-500);
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.text-l {
+  font-weight: var(--font-weight-500);
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.text-m {
+  font-size: var(--font-size-16);
+  line-height: 1.3;
+}
+
+.text-s {
+  font-size: var(--font-size-14);
+  line-height: 1.3;
+}
+
+.text-xs {
+  font-size: var(--font-size-standart);
+}
+
+$sizes: (
+  'xl': $xl,
+  'lg': $lg,
+  'md': $md,
+  'sm': $sm,
+);
+
+@each $size, $px in $sizes {
+  @include r(#{$px}) {
+    .text-#{$size}-l {
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .text-#{$size}-m {
+      font-size: var(--font-size-16);
+      line-height: 1.3;
+    }
+
+    .text-#{$size}-s {
+      font-size: var(--font-size-14);
+      line-height: 1.3;
+    }
+
+    .text-#{$size}-xs {
+      font-size: var(--font-size-standart);
+      line-height: 1.3;
+    }
+  }
+}
+
+// lists
+ul,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+//helpers
+.fw-400 {
+  font-weight: var(--font-weight-400);
+}
+
+.fw-500 {
+  font-weight: var(--font-weight-500);
+}
+
+.fw-600 {
+  font-weight: var(--font-weight-600);
+}
+
+.fw-700 {
+  font-weight: 700;
+}
+
+.ul-primary {
+  li {
+    position: relative;
+    padding-left: 14px;
+    display: block;
+    font-weight: var(--font-weight-400);
+    font-size: var(--font-size-16);
+    line-height: calc(24 / 16);
+    color: var(--color-gray);
+    margin-bottom: 8px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+    &::before {
+      display: inline-block;
+      content: ' ';
+      position: absolute;
+      top: 8px;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
+  }
+}

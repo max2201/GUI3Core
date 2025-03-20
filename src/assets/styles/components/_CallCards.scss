@@ -1,0 +1,240 @@
+.sidebar__scroller{
+  display: flex;
+  flex-direction: column;
+}
+.sidebar__calls-cards{
+  display: none;
+  position: fixed;
+  bottom: 0;
+  transition: 0.3s ease all;
+  max-width: 364px;
+  left: 60px;
+  opacity: 0;
+  transform: translate3d(0, 100%, 0);
+}
+.sidebar__calls-toggle{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 8px 10px;
+  height: 36px;
+  margin: auto auto 0 auto;
+  background: rgba(137, 144, 162, 0.35);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease all;
+  svg{
+    font-size: 18px;
+  }
+  .toggle-chevron{
+    position: absolute;
+    bottom: 3px;
+    right: 0;
+    background: var(--color-primary);
+    border-radius: 30px;
+    width: 20px;
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg{
+      font-size: var(--font-size-14);
+      transition: 0.3s ease all;
+    }
+  }
+}
+.sidebar__calls-toggle._opened{
+  .toggle-chevron{
+    svg{
+      transform: rotate(180deg);
+    }
+  }
+}
+.sidebar__calls-cards._opened{
+  display: flex;
+  transition: 0.3s ease all;
+  animation-name: showCallsCards;
+  animation-duration: 0.5s;
+  animation-delay: 0.2s;
+  animation-fill-mode: forwards;
+}
+.sidebar._opened{
+  .sidebar__calls-cards._opened{
+    left: 200px;
+  }
+  .sidebar__calls-toggle{
+    margin: auto 16px 0 16px;
+    width: auto;
+    justify-content: flex-start;
+    padding: 8px 10px;
+    .calls-toggle-text{
+      margin-left: 8px;
+    }
+    .toggle-chevron{
+      right: 8px;
+    }
+  }
+}
+
+@keyframes showCallsCards {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+$cardHeight: 178px;
+
+.callCard{
+  display: flex;
+  align-items: flex-start;
+  transition: 0.3s ease all;
+  background: #EBFAE5;
+  box-shadow: 2px -2px 10px rgba(0, 23, 36, 0.14);
+  border-radius: 0 12px 0 0;
+  padding: 16px 14px 20px 12px;
+  width: 100%;
+  height: $cardHeight;
+  bottom: 0;
+  cursor: pointer;
+  user-select: none;
+  &-icon{
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 7px;
+    svg{
+      color: black;
+      font-size: 20px;
+    }
+  }
+  &__info{
+    flex-grow: 1;
+    &-header{
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      p{
+        font-style: normal;
+        font-weight: var(--font-weight-600);
+        font-size: var(--font-size-16);
+        line-height: 120%;
+        color: var(--color-font);
+        margin-right: 8px;
+        flex-grow: 1;
+      }
+      span{
+        font-style: normal;
+        font-weight: var(--font-weight-600);
+        font-size: var(--font-size-standart);
+        line-height: 15px;
+        color: #FFFFFF;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background-color: black;
+      }
+    }
+    &-callerName{
+      font-style: normal;
+      font-weight: var(--font-weight-600);
+      font-size: var(--font-size-14);
+      line-height: 120%;
+      color: var(--color-font);
+      margin-bottom: 8px;
+    }
+    &-status,
+    &-phoneNumber {
+      font-style: normal;
+      font-weight: var(--font-weight-400);
+      font-size: var(--font-size-14);
+      line-height: 120%;
+      color: var(--color-font);
+      margin-bottom: 4px;
+      span{
+        font-style: normal;
+        font-weight: var(--font-weight-400);
+        font-size: var(--font-size-14);
+        line-height: 120%;
+        color: var(--color-gray);
+        margin-right: 6px;
+      }
+    }
+    &-action{
+      margin-top: 16px;
+    }
+  }
+  &-action{
+    display: flex;
+    cursor: pointer;
+    margin-left: 13px;
+    .svg-icon{
+      font-size: var(--font-size-24);
+      color: var(--color-gray);
+      transition: 0.3s ease all;
+      &:hover{
+        color: #2e2b3b;
+      }
+    }
+  }
+}
+.callCard.outgoingCall{
+  background: #FFF4EF;
+  .callCard-icon{
+    svg{
+      color: var(--color-red);
+    }
+  }
+  .callCard__info-header{
+    span{
+      background: var(--color-red);
+    }
+  }
+}
+.callCard.activeCall{
+  background: #EBFAE5;
+  .callCard-icon{
+    svg{
+      color: var(--component-green-background);
+    }
+  }
+  .callCard__info-header{
+    span{
+      background: var(--component-green-background);
+    }
+  }
+}
+.callCard.incomingCall{
+  background: var(--color-primary-selected);
+  .callCard-icon{
+    svg{
+      color: var(--color-primary);
+    }
+  }
+  .callCard__info-header{
+    span{
+      background: var(--color-primary);
+    }
+  }
+}
+
+.callCards{
+  position: relative;
+  width: 364px;
+  .callCard{
+    position: fixed;
+  }
+  .callCard:last-child{
+    bottom: 0;
+  }
+}
+
+.callCard-delete{
+  transform: translateY(-30px) translateX(-500px);
+}

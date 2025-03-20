@@ -1,0 +1,53 @@
+* {
+  box-sizing: border-box;
+  outline: none;
+  -webkit-tap-highlight-color: rgb(0 0 0 / 0%);
+}
+
+html,
+body {
+  overscroll-behavior-x: none;
+}
+html {
+  text-rendering: optimizelegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-font);
+  font-family: var(--font-base);
+  font-size: var(--font-size-14);
+  line-height: 1;
+  min-width: 320px;
+  max-width: 100%;
+  margin: 0;
+  touch-action: pan-y;
+  text-size-adjust: none;
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  // position: sticky;
+  // overflow: hidden;
+
+  &.js-locked {
+    overflow: hidden;
+  }
+}
+
+#app {
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+a {
+  color: inherit;
+  text-decoration-skip-ink: none;
+  text-decoration: none;
+}

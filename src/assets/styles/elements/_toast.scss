@@ -1,0 +1,27 @@
+.Vue-Toastification__container {
+  z-index: var(--z-index-toasts);
+}
+
+.Vue-Toastification__toast--success {
+  background: var(--color-green);
+}
+
+.Vue-Toastification__toast {
+  font-family: var(--font-base);
+  padding: 18px 20px;
+  min-height: 56px;
+
+  .Vue-Toastification {
+    &__close-button {
+      opacity: 1;
+    }
+
+    &__icon {
+      display: none;
+    }
+
+    &__toast-body {
+      font-size: var(--font-size-16);
+    }
+  }
+}
