@@ -43,11 +43,12 @@ export const useSharedModalsStore = defineStore('sharedModals', {
       this.modalParams = null
     },
 
-    confirmByCode(): Promise<boolean> {
+    confirmByCode({ keepPrevious }: { keepPrevious?: boolean }): Promise<boolean> {
       return new Promise((resolve) => {
         this.setModal({
           name: CodeConfirmModal,
           params: {
+            keepPrevious: true,
             onCodeVerified: () => {
               resolve(true)
               this.closeModal('success')
@@ -65,11 +66,13 @@ export const useSharedModalsStore = defineStore('sharedModals', {
       lockDateTime,
       userName,
       isActions,
+      keepPrevious,
     }: {
       lockedObjectName: string
       lockDateTime: string
       userName: string | number
       isActions?: boolean
+      keepPrevious?: boolean
     }): Promise<boolean> {
       return new Promise((resolve) => {
         this.setModal({
@@ -79,9 +82,10 @@ export const useSharedModalsStore = defineStore('sharedModals', {
             lockDateTime: lockDateTime,
             userName: userName,
             isActions: isActions,
+            keepPrevious: keepPrevious,
             onForceUnlock: () => {
               resolve(true)
-              this.closeModal('force-unlock')
+              // this.closeModal('force-unlock')
             },
             onCancel: () => {
               resolve(false)
@@ -109,8 +113,8 @@ export const useSharedModalsStore = defineStore('sharedModals', {
           params: {
             ...params,
             isActions: isActions,
-            onSave: () => {
-              resolve(true)
+            onSave: (data: any) => {
+              resolve(data || true)
               this.closeModal('force-unlock')
             },
             onCancel: () => {

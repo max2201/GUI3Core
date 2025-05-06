@@ -1,5 +1,6 @@
 import type { IApiResponse } from '@/core/interface/Api'
 import type { ILoginDto } from '@/core/interface/Auth'
+import type { Layout } from 'grid-layout-plus'
 
 // Login
 export interface ILoginPayload {
@@ -45,6 +46,14 @@ export interface IChangeUserFiliPayload {
 export const ChangeUserFilial = async (req: IChangeUserFiliPayload) => {
   const { data, error }: IApiResponse<{}> = await useApi('UserProfile.ChangeFilial', {
     body: { ...req },
+  })
+
+  return { data, error }
+}
+
+export const UpdateUserDashboardLayoutItems = async (LayoutItems: Layout) => {
+  const { data, error }: IApiResponse<Layout> = await useApi('UserProfile.UpdateLayoutItems', {
+    body: { LayoutItems },
   })
 
   return { data, error }

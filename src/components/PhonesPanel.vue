@@ -1,9 +1,9 @@
 <template>
-  <div class="phones">
+  <div class="phones" v-if="phones">
     <div class="phones__list">
-      <div class="phones__phone" v-if="phones.length">
-        <span class="phones__phone__label">{{ phones[0].Title }}</span>
-        <div class="phones__phone__vaue">{{ phones[0].Phone }}</div>
+      <div class="phones__phone" v-if="phones?.Collection?.length > 0">
+        <span class="phones__phone__label">{{ phones.Collection[0].Title }}</span>
+        <div class="phones__phone__vaue">{{ phones.Collection[0].DisplayPhone }}</div>
       </div>
     </div>
 
@@ -17,10 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import type { IPhoneCell } from '@/core/interface/Object'
+import type { IPhones } from '@/core/interface/Client'
 
 const props = defineProps<{
-  phones: IPhoneCell[]
+  phones?: IPhones
   showCall?: boolean
   showMessenger?: boolean
   showMessenger2?: boolean

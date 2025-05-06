@@ -26,7 +26,11 @@
     <div class="filter-col row">
       <!-- col -->
       <div class="col filter__col">
-        <FilterFields :filter="filter" :showAdditionalFields="showAdditionalFields" />
+        <FilterFields
+          :filter="customFilter && localFilterData ? localFilterData : filter"
+          :showAdditionalFields="showAdditionalFields"
+          @update-filter-values="localFilterData = $event"
+        />
 
         <!-- actions -->
         <FilterActions
@@ -35,8 +39,8 @@
           :is-saved-filter="isSavedFilter"
           class="filter__actions"
           @save="handleSave"
-          @reset="handleReset"
-          @submit="handleSubmit"
+          @reset="customFilter ? emitReset() : handleReset()"
+          @submit="customFilter ? emitSubmit() : handleSubmit()"
           @toggle-more-filters="toggleMoreFilters"
         />
       </div>
@@ -48,15 +52,23 @@
 import type { IModuleFilter } from '@/core/interface/Auth'
 import type { IModuleSavedFilters } from '@/core/interface/Module'
 import { unref } from 'vue'
+import { cloneDeep } from 'lodash'
 
 const props = defineProps<{
   filter?: IModuleFilter | null
   savedFilters?: IModuleSavedFilters | undefined
+  customFilter?: boolean
 }>()
 
 const { showAdditionalFields, toggleMoreFilters, handleReset, handleSubmit } = useFilter()
 
-const emit = defineEmits(['save', 'set-saved-filter', 'delete-saved-filter'])
+const emit = defineEmits([
+  'save',
+  'set-saved-filter',
+  'delete-saved-filter',
+  'submit-filter',
+  'reset-filter',
+])
 const ui = useUiStore()
 
 const moduleStore = useModuleStore()
@@ -65,6 +77,23 @@ const { currentSavedFilter, moduleFilterHasChanges } = storeToRefs(moduleStore)
 const isSavedFilter = computed(() => {
   return String(unref(currentSavedFilter)) !== '-1' && !unref(moduleFilterHasChanges)
 })
+
+const localFilterData = ref<IModuleFilter | null | undefined>(null)
+watch(
+  () => props.filter,
+  () => {
+    localFilterData.value = cloneDeep(props.filter)
+  },
+  { deep: true, immediate: true },
+)
+const emitReset = () => {
+  emit('reset-filter')
+  ui.setFilter(false)
+}
+const emitSubmit = () => {
+  emit('submit-filter', localFilterData.value)
+  ui.setFilter(false)
+}
 
 const handleSave = (value: string) => {
   emit('save', value)
@@ -106,6 +135,7 @@ const handleDeletedSavedFilter = (filterId: string | number) => {
   &__col {
     position: relative;
     flex: 1 1 auto;
+
     &::after {
       display: inline-block;
       content: ' ';

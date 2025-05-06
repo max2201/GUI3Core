@@ -48,7 +48,7 @@
           <template v-for="(subField, index) in subFields" :key="subField.Code">
             <UiInput1
               v-if="subField.Code === FieldType.DLExperienceBeginDate"
-              :id="subField.UiId"
+              :id="subField.UiId || subField.Code"
               :model-value="editableDate"
               :theme="isDriverLicenseExperienceValid === null ? 'success' : undefined"
               :error="
@@ -58,7 +58,9 @@
               readable-disable-mode
               @click="onFocusFieldExperience"
               label="Стаж с"
-              @update:model-value="onChangeExperienceField(subField.Code, $event)"
+              @update:model-value="
+                onChangeExperienceField(isNotSteps ? subField.ValueKey : subField.Code, $event)
+              "
             />
             <UiInput1
               v-else-if="subField.Code === FieldType.DLExperience"
@@ -69,9 +71,28 @@
               readable-disable-mode
             />
             <UiFieldInput
+              v-else-if="isNotSteps"
+              :class="subField.FieldType === 'checkbox' ? 'span-2' : ''"
+              :id="subField.UiId || subField.Code"
+              :type="subField.FieldType"
+              :name="subField.ValueKey"
+              :value="currentForm[subField.ValueKey]"
+              :label="subField.Title"
+              :options="getFieldOptions(subField)"
+              :has-modified="modifiedFields[subField.ValueKey]"
+              :is-required="subField.IsRequired"
+              :validator="subField.Validator"
+              :disabled="disabled"
+              @change="changeFieldValue(subField.ValueKey, $event)"
+              @ready-to-focus-next="onFocusNextField(index)"
+              @valid-state="validState(subField)"
+              @invalid-state="invalidState(subField)"
+              @required-check="onRequiredCheck"
+            />
+            <UiFieldInput
               v-else
               :class="subField.FieldType === 'checkbox' ? 'span-2' : ''"
-              :id="subField.UiId"
+              :id="subField.UiId || subField.Code"
               :type="subField.FieldType"
               :name="subField.Code"
               :value="currentForm[subField.Code]"
@@ -108,6 +129,7 @@ import { useObjectFieldServices } from '@/composables/use-object-field-services'
 import type { IUiObjectStepField } from '@/core/interface/Object'
 import moment from 'moment/moment'
 import { DefaultDatetimeFormat } from '@/core/constants/DefaultDatetimeFormats'
+import { FieldKey } from '@/core/constants/FieldKey'
 
 const props = defineProps<{
   name: string
@@ -117,6 +139,7 @@ const props = defineProps<{
   value?: object
   disabled?: boolean
   isRequired?: boolean
+  isNotSteps?: boolean
 }>()
 
 const emits = defineEmits(['change', 'open-dialog', 'close-dialog'])
@@ -150,8 +173,12 @@ const SetExperienceBeginDate = (ExperienceBeginDate: string) => {
 watch(
   () => props.subFields,
   () => {
-    updateFormFieldsFromSteps(props.subFields)
-    SetExperienceBeginDate(currentForm.value[FieldType.DLExperienceBeginDate])
+    updateFormFieldsFromSteps(props.subFields, props.isNotSteps)
+    if (!props.isNotSteps) {
+      SetExperienceBeginDate(currentForm.value[FieldType.DLExperienceBeginDate])
+    } else {
+      SetExperienceBeginDate(currentForm.value[FieldKey.ExperienceBeginDate])
+    }
   },
   {
     immediate: true,
@@ -171,18 +198,27 @@ watch(
   },
 )
 const valueString = computed(() => {
-  if (!currentForm.value[FieldType.DLNumber]) {
+  if (!currentForm.value[FieldType.DLNumber] && !currentForm.value[FieldKey.Number]) {
     return 'Не задано'
+  } else if (props.isNotSteps) {
+    const licenseNumber = currentForm.value[FieldKey.Number]
+
+    if (!licenseNumber) return 'Не указано'
+    if (currentForm.value[FieldKey.ExperienceBeginDate]) {
+      return `${licenseNumber}, ${getExperienceString()}`
+    } else {
+      return licenseNumber
+    }
   } else {
     const licenseNumber = currentForm.value[FieldType.DLNumber]
 
     if (!licenseNumber) return 'Не указано'
 
-    if (currentForm.value[FieldType.DLExperience]) {
+    if (currentForm.value[FieldType.DLExperienceBeginDate]) {
       return `${licenseNumber}, ${getExperienceString()}`
+    } else {
+      return licenseNumber
     }
-
-    return licenseNumber
   }
 })
 const validDriverExperience = getValidationService('DriverExperience')
@@ -242,7 +278,10 @@ watch(
 const onChangeExperienceField = (type: string, value: string) => {
   let formattedExperienceDate = value
   editableDate.value = value
-  if (validDriverExperience(value, currentForm.value[FieldType.DLDate]) == null) {
+  if (
+    validDriverExperience(value, currentForm.value[FieldType.DLDate]) == null ||
+    currentForm.value[FieldKey.Number] == null
+  ) {
     if (value.length === 4) {
       formattedExperienceDate = moment(editableDate.value, 'YYYY').format(DefaultDatetimeFormat)
     } else if (editableDate.value.length === 7) {
@@ -264,6 +303,7 @@ const onClickClear = () => {
       ...toRaw(unref(field)),
       Value: '',
     })),
+    props.isNotSteps,
   )
   emits('change', {
     ...toRaw(unref(currentForm)),
@@ -279,8 +319,12 @@ const closeDetailsModal = () => {
 const onCloseDetails = () => {
   closeDetailsModal()
   editableDate.value = ''
-  updateFormFieldsFromSteps(props.subFields)
-  SetExperienceBeginDate(currentForm.value[FieldType.DLExperienceBeginDate])
+  updateFormFieldsFromSteps(props.subFields, props.isNotSteps)
+  if (props.isNotSteps) {
+    SetExperienceBeginDate(currentForm.value[FieldKey.ExperienceBeginDate])
+  } else {
+    SetExperienceBeginDate(currentForm.value[FieldType.DLExperienceBeginDate])
+  }
 }
 
 const showSavedDetails = (data: any) => {

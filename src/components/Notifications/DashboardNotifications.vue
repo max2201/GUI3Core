@@ -1,24 +1,23 @@
 <template>
-  <div class="dashboardNotifications">
-    <div class="dashboardNotifications__header">
-      <div class="dashboardNotifications__header-title">
+  <DashboardWidgetGroup class="dashboard-notifications">
+    <template #title>
+      <div class="dashboard-notifications__header-title">
         <SvgIcon name="bell" class="mr-2" />
         Последние уведомления
       </div>
-      <div class="dashboardNotifications__header-count element-pill">
+      <div class="dashboard-notifications__header-count element-pill">
         {{ dashboardNotifications.length }}
       </div>
-      <div
-        :style="`padding-right: ${dashboardNotifications.length > 3 ? '14px' : '0'} `"
-        class="dashboardNotifications__header-filters"
-      >
+    </template>
+    <template #actions>
+      <div class="dashboard-notifications__header-filters">
         <NotificationsFilters
           @update-notifications-filters="updateNotificationsFilters"
           component-type="dashboardNotifications"
         />
       </div>
-    </div>
-    <div class="dashboardNotifications__items" v-if="dashboardNotifications.length">
+    </template>
+    <div class="dashboard-notifications__items" v-if="dashboardNotifications.length">
       <NotificationCard
         v-for="item in dashboardNotifications"
         :key="item.id"
@@ -30,7 +29,7 @@
       <img src="@/assets/img/empty.png" alt="" />
       <p>Ура! Пока нет новых уведомлений, можно немного расслабиться</p>
     </div>
-  </div>
+  </DashboardWidgetGroup>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +56,7 @@ watch(
     if (headerNotificationsCount !== oldValue) {
       getDebounceNotifications(requestArray.value, 'dashboardNotifications')
     }
-  }
+  },
 )
 
 const updateNotificationsFilters = (array) => {
@@ -71,8 +70,68 @@ watch(
       getDebounceNotifications([...requestArray], 'dashboardNotifications')
     }
   },
-  { deep: true }
+  { deep: true },
 )
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.dashboard-notifications {
+  &__header {
+    display: flex;
+    align-items: center;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      font-style: normal;
+      font-weight: var(--font-weight-600);
+      font-size: var(--font-size-16);
+      line-height: 130%;
+      user-select: none;
+
+      svg {
+        font-size: 20px;
+        margin-right: 4px;
+
+        &:hover {
+          cursor: default;
+        }
+      }
+    }
+
+    &-count {
+      margin-right: 40px;
+    }
+
+    &-filters {
+      display: flex;
+      margin-left: auto;
+    }
+  }
+
+
+  &__items {
+    &::-webkit-scrollbar {
+      background-color: var(--component-background) !important;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--component-background) !important;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-color: var(--component-background) !important;
+    }
+    display: block;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 50px;
+    max-height: 300px;
+  }
+
+  &__header-filters {
+    transition: 0.3s ease all;
+  }
+}
+</style>

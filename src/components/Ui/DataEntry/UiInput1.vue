@@ -13,15 +13,28 @@
           name="info"
         />
       </div>
+      <div
+        v-if="warning"
+        class="ui-input__label-warning-icon"
+        :title="typeof warning === 'boolean' ? '' : warning"
+      >
+        <SvgIcon
+          :width="size === 'large' ? 16 : 14"
+          :height="size === 'large' ? 16 : 14"
+          class="c-yellow"
+          name="alertRounded"
+        />
+      </div>
     </label>
     <div class="ui-input__wrapper" @click="inputRef?.focus()">
-      <slot name="prepend">
+      <slot name="prepend" :iconClick="iconClick">
         <SvgIcon
           class="ui-input__icon"
           v-if="icon && iconPosition === 'left'"
           :name="icon"
           :width="20"
           :height="20"
+          @click.stop="iconClick"
         ></SvgIcon>
       </slot>
       <template v-if="isTextarea">
@@ -93,13 +106,14 @@
             <span v-if="typeof changeable === 'string'">{{ changeable }}</span>
             <span v-else>Изменить</span>
           </span>
-          <slot name="append">
+          <slot name="append" :iconClick="iconClick">
             <SvgIcon
               class="ui-input__icon"
               :width="24"
               :height="24"
               v-if="icon && iconPosition === 'right'"
               :name="icon"
+              @click.stop="iconClick"
             ></SvgIcon>
           </slot>
         </template>
@@ -115,8 +129,9 @@ import { nanoid } from 'nanoid'
 import { vMaska } from 'maska/vue'
 import type { MaskInputOptions } from 'maska'
 import type { PropType } from 'vue'
+import { isString } from 'lodash'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const emit = defineEmits([
@@ -127,6 +142,7 @@ const emit = defineEmits([
   'onCtrlEnter',
   'update:model-value',
   'clear-input',
+  'icon-click',
 ])
 
 defineOptions({
@@ -180,6 +196,10 @@ const props = defineProps({
   },
   // modifiers
   error: {
+    type: [String, Boolean],
+    required: false,
+  },
+  warning: {
     type: [String, Boolean],
     required: false,
   },
@@ -268,12 +288,15 @@ const handleChange = (e) => {
 const isFocused = ref(false)
 
 const isFocusedOrNotBlank = computed(() => {
-  if (localValue.value?.trim().length > 0) {
+  if (isString(localValue.value) && localValue.value?.trim().length > 0) {
     return true
   }
   return isFocused.value
 })
 
+const iconClick = () => {
+  emit('icon-click')
+}
 const handleFocus = (e) => {
   isFocused.value = true
 }
@@ -442,6 +465,14 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
     }
 
     &-error-icon {
+      display: flex;
+      color: var(--component-danger-color);
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+    &-warning-icon {
       display: flex;
       color: var(--component-danger-color);
 

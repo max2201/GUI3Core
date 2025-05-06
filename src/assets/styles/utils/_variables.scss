@@ -23,23 +23,32 @@ $col10: 83.333333%;
 $col11: 91.666667%;
 $col12: 100%;
 
-$system-color-0: #8AC4FF;
-$system-color-1: #de1a1a;
-$system-color-2: #7fff00;
-$system-color-3: #E3B505;
-$system-color-4: #C5C3C6;
-$system-color-5: #064789;
+$system-color-0: #23282F;
+$system-color-1: #F8393A;
+$system-color-2: #66AA61;
+$system-color-3: #FBA600;
+$system-color-4: #8990A2;
+$system-color-5: #1A8FF2;
 $system-color-6: #30D5C8;
-$system-color-7: #B744B8;
+$system-color-7: #B86FE4;
+
+$system-background-color-0: transparent;
+$system-background-color-1: #FFF4EF;
+$system-background-color-2: #EBFAE5;
+$system-background-color-3: #FFFDE3;
+$system-background-color-4: #F0F5F9;
+$system-background-color-5: #E6F4FF;
+$system-background-color-6: #BAF9F9;
+$system-background-color-7: #F9D3F8;
 
 $system-color-with-alpha-0: #8AC4FF10;
-$system-color-with-alpha-1: #de1a1a10;
-$system-color-with-alpha-2: #7fff0010;
-$system-color-with-alpha-3: #E3B50510;
-$system-color-with-alpha-4: #C5C3C610;
-$system-color-with-alpha-5: #06478910;
+$system-color-with-alpha-1: #F8393A10;
+$system-color-with-alpha-2: #66AA6110;
+$system-color-with-alpha-3: #FBA60010;
+$system-color-with-alpha-4: #8990A210;
+$system-color-with-alpha-5: #1A8FF210;
 $system-color-with-alpha-6: #30D5C810;
-$system-color-with-alpha-7: #B744B810;
+$system-color-with-alpha-7: #B86FE410;
 
 .system-color-0 {
     color: $system-color-0 !important;
@@ -92,28 +101,28 @@ $system-color-with-alpha-7: #B744B810;
 }
 
 .system-background-color-0 {
-    background-color: $system-color-0 !important;
+    background-color: $system-background-color-0 !important;
 }
 .system-background-color-1 {
-    background-color: $system-color-1 !important;
+    background-color: $system-background-color-1 !important;
 }
 .system-background-color-2 {
-    background-color: $system-color-2 !important;
+    background-color: $system-background-color-2 !important;
 }
 .system-background-color-3 {
-    background-color: $system-color-3 !important;
+    background-color: $system-background-color-3 !important;
 }
 .system-background-color-4 {
-    background-color: $system-color-4 !important;
+    background-color: $system-background-color-4 !important;
 }
 .system-background-color-5 {
-    background-color: $system-color-5 !important;
+    background-color: $system-background-color-5 !important;
 }
 .system-background-color-6 {
-    background-color: $system-color-6 !important;
+    background-color: $system-background-color-6 !important;
 }
 .system-background-color-7 {
-    background-color: $system-color-7 !important;
+    background-color: $system-background-color-7 !important;
 }
 
 .system-background-color-with-alpha-0 {

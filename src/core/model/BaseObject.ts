@@ -11,22 +11,22 @@ import { FieldGroupStates } from '@/core/constants/FieldGroupStates'
 import type { IRequestDto } from '@/core/interface/Requests'
 import { RequestsModuleId } from '@/core/constants/ModuleId'
 
-export class BaseObject {
+export class BaseObject<T extends IObjectDto> {
   id: number
   type: BaseObjectType
 
-  public rawData?: IObjectDto
-  public currentState?: IObjectDto
+  public rawData?: T
+  public currentState?: T
 
   private isAllowForEdit = false
 
-  constructor(id: number, objectDTO?: IObjectDto, type?: BaseObjectType) {
+  constructor(id: number, objectDTO?: T, type?: BaseObjectType) {
     this.id = id
     this.type = objectDTO?.BaseObjectType || type || 0
 
     if (objectDTO) {
       this.rawData = cloneDeep(toRaw(unref(objectDTO)))
-      this.currentState = reactive(cloneDeep(toRaw(unref(objectDTO))) as IObjectDto)
+      this.currentState = reactive(cloneDeep(toRaw(unref(objectDTO))) as T)
     }
   }
 
@@ -38,7 +38,7 @@ export class BaseObject {
     return Boolean(this.rawData)
   }
 
-  public checkAccess() {
+  public checkAccess(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       VerifyAccess({
         TypeOperation: AccessVerifyOperationType.Modify,
@@ -62,7 +62,7 @@ export class BaseObject {
     })
   }
 
-  public async loadData() {
+  public async loadData(): Promise<T | undefined> {
     if (this.id < 0) {
       return GetObjectDto({
         ObjectId: -1,
@@ -72,13 +72,13 @@ export class BaseObject {
         ReturnEmptyObject: true,
       }).then(({ data, error }) => {
         if (!data || error) {
-          console.error('ClientObject -> loadInfo -> Cant load GetObjectDto', error)
+          console.error('BaseObject -> loadData -> Cannot load GetObjectDto', error)
           return
         }
-        this.rawData = data
-        this.currentState = reactive(cloneDeep(data))
+        this.rawData = data as T
+        this.currentState = reactive(cloneDeep(data) as T)
 
-        return data
+        return data as T
       })
     }
     return GetObjectDto({
@@ -87,60 +87,58 @@ export class BaseObject {
       DtoViewType: DtoObjectViewType.PrimaryView,
     }).then(({ data, error }) => {
       if (!data || error) {
-        console.error('ClientObject -> loadInfo -> Cant load GetObjectDto', error)
+        console.error('BaseObject -> loadData -> Cannot load GetObjectDto', error)
         return
       }
-      this.rawData = data
-      this.currentState = reactive(cloneDeep(data))
+      this.rawData = data as T
+      this.currentState = reactive(cloneDeep(data) as T)
 
-      return data
+      return data as T
     })
   }
 
-  public async applyChanges(changes: any) {
+  public async applyChanges(changes: Partial<T>): Promise<void> {
     return new Promise((resolve) => resolve())
   }
 
-  public getCurrentState(): IObjectDto | null {
+  public getCurrentState(): T | null {
     return this.currentState || null
   }
 
   public getFlags(): IObjectFlag[] {
-    if (this.currentState?.Flags) {
-      return this.currentState.Flags
-    }
-
-    return []
+    return this.currentState?.Flags || []
   }
 
-  public release() {
+  public release(): void {
     ReleaseObject({
       LockedObjectId: this.id,
       LockedObjectType: this.type,
     })
   }
 
-  public setFlags(newFlags: null | IObjectFlag[]) {
-    if (!this.currentState) return
-
-    this.currentState.Flags = newFlags
+  public setFlags(newFlags: IObjectFlag[] | null): void {
+    if (this.currentState) {
+      this.currentState.Flags = newFlags
+    }
   }
 
-  public async lockObject(forceLock: boolean = false) {
+  public async lockObject(forceLock: boolean = false): Promise<void> {
     return await LockObject({
       LockedObjectId: this.id,
       LockedObjectType: this.type,
       ForceLock: forceLock,
     })
   }
-  public async verifyLockObject() {
+
+  public async verifyLockObject(): Promise<void> {
     return await VerifyLock({
       LockedObjectId: this.id,
       LockedObjectType: this.type,
     })
   }
-  public async releaseObject() {
-    return ReleaseObject({
+
+  public async releaseObject(): Promise<void> {
+    return await ReleaseObject({
       LockedObjectId: this.id,
       LockedObjectType: this.type,
     })

@@ -347,6 +347,31 @@ export const validPassportResidenceNumber = (number: string) => {
   return regexp.test(val) || regexp2.test(val) || regexp3.test(val)
 }
 
+function validOgrnIp(originalNumber: string | number) {
+  console.log(originalNumber)
+  //  Валидация ОГРНИП – в ОГРНИП 15 цифра является контрольным разрядом. Алгоритм проверки контрольного числа следующий.
+  //  Выбрать 14-значное число ОГРНИП (с 1-й по 14-ю цифру).
+  //  Вычислить остаток от деления выбранного числа на 13.
+  //  Сравнить младший разряд полученного остатка от деления с 15-й цифрой ОГРНИП.
+  //  Если они равны, то ОГРНИП верный.
+
+  const number = String(originalNumber).replace(/\D/g, '')
+
+  if (number.length === 15) {
+    const firstPart = number.substring(0, 14) // Первые 14 цифр
+    const controlNumber = Number(number[14]) // 15-я цифра, контрольная
+    const remainder = Number(firstPart) % 13 // Остаток от деления
+
+    // Получаем младший разряд остатка
+    const lastDigitOfRemainder = remainder % 10
+
+    // Сравниваем младший разряд остатка с контрольной цифрой
+    return lastDigitOfRemainder === controlNumber
+  }
+
+  return false // Если длина не равна 15
+}
+
 // ---------- Validator getter
 
 export const getValidationService = (validator?: string): ValidatorService => {
@@ -377,6 +402,9 @@ export const getValidationService = (validator?: string): ValidatorService => {
     }
     case 'PassportResidenceNumber': {
       return validPassportResidenceNumber
+    }
+    case 'OgrnIp': {
+      return validOgrnIp
     }
     default: {
       return () => undefined

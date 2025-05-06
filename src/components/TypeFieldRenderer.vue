@@ -15,6 +15,7 @@ import TextPercentAndDetailMain from '@c/Ui/DataDisplay/Fields/TextPercentAndDet
 import TextPercentAndDetailAdditional from '@c/Ui/DataDisplay/Fields/TextPercentAndDetailAdditional.vue'
 import SummaryInfoField from '@c/Ui/DataDisplay/Fields/SummaryInfoField.vue'
 import SimpleWithIconField from '@c/Ui/DataDisplay/Fields/SimpleWithIconField.vue'
+import ComplexPanel from '@c/Ui/DataDisplay/Fields/ComplexPanel.vue'
 
 defineOptions({
   inheritAttrs: false,
@@ -41,6 +42,8 @@ const getComponentForField = (fieldType: ViewFieldTypes) => {
       return TextPercentAndDetailAdditional
     case ViewFieldTypes.SimpleWithIcon:
       return SimpleWithIconField
+    case ViewFieldTypes.ComplexPanel:
+      return ComplexPanel
     default:
       return SimpleViewField
   }

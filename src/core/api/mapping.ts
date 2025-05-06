@@ -58,6 +58,7 @@ export const isSelectLikeType = (type: number) => {
     FilterFieldTypes.FilialsCheckedList,
     FilterFieldTypes.Flags,
     FilterFieldTypes.CompanyList,
+    FilterFieldTypes.UserList,
   ].includes(type)
 }
 

@@ -119,6 +119,22 @@
     "validPassportResidenceNumber": true,
     "validPassportRfIssuedPlaceNo": true,
     "validPassportRfNumber": true,
-    "validPassportRfSeria": true
+    "validPassportRfSeria": true,
+    "validOgrnIp": true,
+    "TimeSpanPeriodType": true,
+    "formatDateTime": true,
+    "getDateTimeIntervals": true,
+    "getStringIntervals": true,
+    "getTimePeriod": true,
+    "getOriginalPhone": true,
+    "getPhoneMask": true,
+    "formatShortPhoneNumber": true,
+    "getShortPhoneMask": true,
+    "formatPhoneNumber1": true,
+    "PeriodsHelper": true,
+    "getTimePeriodLabelWithParams": true,
+    "TimeSpanShiftDirection": true,
+    "getAvailableStepPeriodTypes": true,
+    "getTimePeriodWithDirection": true
   }
 }

@@ -37,7 +37,7 @@
 // @checked is controlled by parent state
 
 import { nanoid } from 'nanoid'
-const id = nanoid(10)
+const id = 'id_' + nanoid(10)
 
 const emit = defineEmits(['change'])
 
@@ -116,14 +116,19 @@ const change = () => {
     font-size: 10px;
     color: var(--color-primary);
     cursor: pointer;
-    transition: border 0.25s $ease, background 0.25s $ease, outline 0.25s $ease;
+    transition:
+      border 0.25s $ease,
+      background 0.25s $ease,
+      outline 0.25s $ease;
 
     .svg-icon {
       opacity: 0;
       transform: scale(0.5);
       pointer-events: none;
       will-change: transform, opacity;
-      transition: transform 0.25s $ease, opacity 0.25s $ease;
+      transition:
+        transform 0.25s $ease,
+        opacity 0.25s $ease;
     }
   }
 

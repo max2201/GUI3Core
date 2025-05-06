@@ -53,7 +53,10 @@
       />
     </template>
   </template>
-  <RequestNewPage v-else :object-id="objectId" :loading="loading" />
+  <template v-else>
+    <div class="request-empty"></div>
+    <request-new-form :object-id="objectId"></request-new-form
+  ></template>
 </template>
 
 <script setup lang="ts">
@@ -61,6 +64,9 @@ import { useToast } from 'vue-toastification'
 import type { IObjectDto } from '@/core/interface/Object'
 import { RequestsUpdate, RequestValidate, type RequestValidateVals } from '@/core/api/requests.api'
 import type { LockingObject } from '@/core/interface/LockingObject'
+import ObjectEdit from '@c/ObjectPage/ObjectEditView.vue'
+import type { RequestObject } from '@/core/model/RequestObject'
+import type { IRequestDto } from '@/core/interface/Requests'
 
 const toast = useToast()
 const sharedModals = useSharedModalsStore()
@@ -88,9 +94,9 @@ const onEditObject = async () => {
   if (data && !error) {
     if (!data?.VerifySuccessful) {
       const isUnlocked = await sharedModals.showExistLockModal({
-        lockedObjectName: data!.LockingObject!.LockedObjectName,
-        lockDateTime: data!.LockingObject!.LockDateTime,
-        userName: data!.LockingObject!.UserName,
+        lockedObjectName: data?.LockingObject?.LockedObjectName,
+        lockDateTime: data?.LockingObject?.LockDateTime,
+        userName: data?.LockingObject?.UserName,
         isActions: true,
       })
 
@@ -111,7 +117,7 @@ const onEditObject = async () => {
 
 const isLoadingLocking = ref(false)
 
-const tryLockObject = async (isForceLock = false, isView) => {
+const tryLockObject = async (isForceLock = false, isView?) => {
   isObjectLockedForCurrentUser.value = false
   isLoadingLocking.value = true
   const { data, error } = await object.lockObject(isForceLock)
@@ -122,9 +128,9 @@ const tryLockObject = async (isForceLock = false, isView) => {
       isObjectLockedForCurrentUser.value = false
     } else if (!isView) {
       const isUnlocked = await sharedModals.showExistLockModal({
-        lockedObjectName: data!.LockingObject!.LockedObjectName,
-        lockDateTime: data!.LockingObject!.LockDateTime,
-        userName: data!.LockingObject!.UserName,
+        lockedObjectName: data?.LockingObject?.LockedObjectName,
+        lockDateTime: data?.LockingObject?.LockDateTime,
+        userName: data?.LockingObject?.UserName,
         isActions: true,
       })
       if (isUnlocked) {
@@ -309,6 +315,9 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.request-empty {
+  background: var(--color-disabled);
+}
 .request-view {
   &__section {
     padding: 12px 30px;

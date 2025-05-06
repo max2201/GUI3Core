@@ -42,8 +42,8 @@
           <div class="notification__table" v-for="row in modalParams.tableData">
             <div class="notification__table-row">
               <SvgIcon :width="20" :height="20" name="alertRounded" class="color-red" />
-              <div class="notification__table-reason">{{ row.reason }}</div>
               <div class="notification__table-title">{{ row.title }}</div>
+              <div class="notification__table-reason">{{ row.reason }}</div>
             </div>
           </div>
         </template>
@@ -144,7 +144,7 @@ const confirm = () => {
       line-height: 130%;
       display: grid;
       gap: 8px;
-      grid-template-columns: 20px calc(50% - 28px) calc(50% - 8px);
+      grid-template-columns: 20px calc(40% - 28px) calc(60% - 8px);
     }
     &-reason {
       color: #8990a2;

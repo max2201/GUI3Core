@@ -1,5 +1,6 @@
 import type { IObjectFlag } from './Object'
 import type { IModuleStateColumn, IRowDto } from '@/core/interface/Module'
+import type { Layout } from 'grid-layout-plus'
 
 export interface ILoginDto {
   UserProfile: IUserProfileDto
@@ -97,6 +98,10 @@ export interface FavoriteObject {
     BaseObjectType: number
   }
 }
+export interface FavoriteModule {
+  FullViewId: string
+  HasTableWidget: boolean
+}
 
 export interface IUserAdditionalSettings {
   SaveTelephonySettingsInProfile: boolean
@@ -104,8 +109,9 @@ export interface IUserAdditionalSettings {
   TelephonyEmployeeId: string
   TelephonyVirtualNumber: string
   TelephonyBeelineSubId: string
-  FavoritesModules: string[]
+  FavoritesModulesNew: FavoriteModule[]
   FavoritesObjects: FavoriteObject[]
+  LayoutItems: Layout
 }
 
 export interface CurrentColumn {
@@ -132,6 +138,7 @@ export interface IModuleFilterField {
   currentVal: string
   defaultVal: string
   subItems: IModuleFilterField[] | null
+  error?: any
 }
 
 export enum FilterFieldTypes {
@@ -145,6 +152,7 @@ export enum FilterFieldTypes {
   CheckBox = 7,
   Flags = 8,
   CompanyList = 9,
+  UserList = 10,
 }
 
 export interface IModuleFilterFieldValue {

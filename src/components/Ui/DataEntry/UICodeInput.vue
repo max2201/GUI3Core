@@ -132,7 +132,7 @@ const setAutoFocus = () => {
     inputs.value[autoFocusIndex.value + 1].focus()
   }
 }
-defineExpose({ setAutoFocus, clearValue })
+`defineExpose({ setAutoFocus, clearValue })`
 
 const onKeyDown = (e) => {
   const index = parseInt(e.target.dataset.id)

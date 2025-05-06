@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content" :id="formId">
     <UiLoader :loading="isLoadingObjectData" theme="page" />
     <template v-if="showedObjectId && isOpened && !isLoadingObjectData">
       <RequestView
@@ -12,7 +12,7 @@
         v-else-if="showedObjectType === BaseObjectType.Client"
         :key="'client' + showedObjectId"
         :object-id="showedObjectId"
-        @request-update-object="onUpdateObject"
+        :formId="formId"
       />
       <CallView
         v-else-if="showedObjectType === BaseObjectType.Call"
@@ -32,7 +32,11 @@
 <script setup lang="ts">
 import type { IObjectDto } from '@/core/interface/Object'
 import { BaseObjectType } from '@/core/constants/BaseObjectType'
-
+import { customAlphabet } from 'nanoid'
+import { ref } from 'vue'
+import ClientEditMainForm from '@c/WindowManager/WindowObjectViews/ClientPages/ClientEditMainForm.vue'
+const nanoid = customAlphabet('abcdef', 10)
+const formId = ref(nanoid(10))
 const dialogStore = useWindowStore()
 const { isOpened, activeTab } = storeToRefs(dialogStore)
 
@@ -59,12 +63,18 @@ watch(
 
       if (object.id < 0) {
         showedObjectId.value = activeTabData.id
+        if (showedObjectType.value === BaseObjectType.Client) {
+          isLoadingObjectData.value = false
+          return
+        }
       }
       isLoadingObjectData.value = false
       return
     }
     try {
-      await object.loadData()
+      if (object.id < 0 && showedObjectType.value == BaseObjectType.Client) {
+        return
+      } else await object.loadData()
     } finally {
       showedObjectId.value = object.id
       showedObjectType.value = object.type
@@ -90,4 +100,8 @@ const onUpdateObject = (objectState: IObjectDto) => {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.content {
+  position: relative;
+}
+</style>

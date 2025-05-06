@@ -1,7 +1,7 @@
 <template>
   <Component
     :key="`group-${group.Code}`"
-    :is="getComponentForGroup(group.GroupType)"
+    :is="getComponentForGroup(group?.GroupType)"
     :group="group"
     v-bind="$attrs"
   >

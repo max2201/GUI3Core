@@ -13,7 +13,7 @@
     <RouterView />
   </ResourceLayout>
 
-  <LayoutDefault v-else :simple="isSimpleView">
+  <LayoutDefault v-else :simple="isSimpleView" id="defaultLayout">
     <RouterView />
 
     <UiLoader :loading="showLoader" theme="page" not-transparent />

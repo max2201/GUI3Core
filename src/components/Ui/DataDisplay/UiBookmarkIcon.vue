@@ -1,13 +1,13 @@
 <template>
-    <div
-      :class="[
-        'bookmark-icon',
-        {
-          'bookmark-icon_active': active,
-        },
-      ]"
-      @click="handleClick"
-    ></div>
+  <div
+    :class="[
+      'bookmark-icon',
+      {
+        'bookmark-icon_active': active,
+      },
+    ]"
+    @click="handleClick"
+  ></div>
 </template>
 
 <script setup lang="ts">
@@ -17,11 +17,11 @@ const props = defineProps({
   active: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 
 const handleClick = () => {
-    emit('click')
+  emit('click')
 }
 </script>
 

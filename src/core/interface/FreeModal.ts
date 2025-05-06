@@ -3,6 +3,8 @@ export enum FreeModalTarget {
   NewRequest = 'NewRequest',
   ObjectNotifications = 'ObjectNotifications',
   MetaDataGroups = 'MetaDataGroups',
+  WidgetEdit = 'WidgetEdit',
+  WidgetView = 'WidgetView',
 }
 
 export interface FreeModalArgs {

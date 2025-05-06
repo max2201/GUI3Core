@@ -43,11 +43,7 @@
             <th
               v-if="hasActionCell"
               class="atom-table__header-action-cell"
-              @click="
-                isActiveBatchEditing && !selectedBatchIds
-                  ? onClickSelectedAll
-                  : onClickHeaderActionCell
-              "
+              @click="onClickHeaderActionCell"
             >
               <div
                 :class="[
@@ -67,8 +63,8 @@
                 {
                   'left-sticky': stickyCell && index === 0,
                   'atom-table__header-cell_sortable': item.sort,
-                  'atom-table__header-cell_active-sort': datasetMeta.sort.id === item.id,
-                  'atom-table__header-cell_asc-sort': datasetMeta.sort.dir === 'ASC',
+                  'atom-table__header-cell_active-sort': datasetMeta?.sort?.id === item.id,
+                  'atom-table__header-cell_asc-sort': datasetMeta?.sort?.dir === 'ASC',
                   'atob-table__header-cell_last': datasetSnapshot?.length - 1 === index,
                 },
               ]"
@@ -114,7 +110,7 @@
                 class="atom-table__cell atom-table__action-cell"
                 @click.stop="onClickAction(index)"
                 :style="{
-                  'background-color': item.color ? item.color + '6a' : '#ffffff',
+                  'background-color': item.color ? item.color : '#ffffff',
                 }"
               >
                 <div
@@ -149,7 +145,7 @@
                         : datasetSnapshot[index]?.width) + 'px',
                   position: stickyCell && index === 0 ? 'sticky' : undefined,
                   left: stickyCell && index === 0 ? '28px' : undefined,
-                  'background-color': item.color ? item.color + '6a' : '#ffffff',
+                  'background-color': item.color ? item.color : '#ffffff',
                 }"
                 :class="[
                   'atom-table__cell',
@@ -212,6 +208,9 @@
 
               <template v-if="item?.cells?.length < datasetSnapshot?.length">
                 <td
+                  :style="{
+                    'background-color': item.color ? item.color : '#ffffff',
+                  }"
                   v-for="(ghost, index) in Array(datasetSnapshot?.length - item?.cells?.length)"
                   :key="`ghost-${index}`"
                   class="atom-table__cell"
@@ -267,6 +266,7 @@ const props = defineProps<{
   showLoader?: boolean
   hasActionCell?: boolean
   isActiveBatchEditing?: boolean
+  isBathEditOne?: boolean
   stickyCell?: boolean
   availableGroupActions?: IGroupActionInfo[]
 }>()
@@ -322,10 +322,12 @@ const onClickSelectedAll = () => {
 }
 const onClickAction = (row: number) => {
   const item = props.dataset[row]
-  if (!batchEditing.value && props.datasetMeta.isContextView) {
+  if (!batchEditing.value && props.datasetMeta?.isContextView) {
     localTableState.value.toggleExpanded(item.id)
-  } else if (props.isActiveBatchEditing) {
-    localTableState.value.toggleSelectedBatchIds(item.id)
+  } else if (props.isActiveBatchEditing || batchEditing.value) {
+    if (props.isBathEditOne) {
+      localTableState.value.toggleSelectedBatchId(item.id)
+    } else localTableState.value.toggleSelectedBatchIds(item.id)
   }
 }
 
@@ -668,6 +670,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .atom-table__wrapper {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;

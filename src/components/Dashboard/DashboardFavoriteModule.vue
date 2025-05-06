@@ -3,16 +3,44 @@
     :class="[
       'favorite-module',
       {
-        'favorite-module_no-background': value.backgroundColor.toLowerCase() === '#ffffff',
+        'favorite-module_no-background':
+          !value.backgroundColor || value.backgroundColor.toLowerCase() === '#ffffff',
       },
     ]"
+    :title="`${value.title}: ${value.subtitle}`"
   >
     <div class="favorite-module__wrapper">
-      <div class="favorite-module__icon">
-        <SvgIcon :name="value.icon" />
+      <div class="favorite-module__head">
+        <div class="favorite-module__icon">
+          <SvgIcon :name="value.icon" />
+        </div>
+        <div class="favorite-module__actions">
+          <slot name="actions">
+            <UiButton1
+              title="Удалить из избранного"
+              variant="text"
+              theme="transparent"
+              :icon-size="20"
+              icon-left="bookmark-minus"
+              @click.stop="removeModuleFromFavourite"
+            ></UiButton1>
+            <UiButton1
+              v-if="value.hasTableData && !hideControls"
+              style="transform: rotate(90deg)"
+              title="Открыть табличные данные модуля"
+              variant="text"
+              theme="transparent"
+              :icon-size="20"
+              icon-left="maximize-square"
+              @click.stop="openModuleTable"
+            ></UiButton1>
+          </slot>
+        </div>
       </div>
-      <span class="favorite-module__title">{{ value.title }}</span>
-      <span class="favorite-module__subtitle">{{ value.subtitle }}</span>
+      <div>
+        <span class="favorite-module__title">{{ value.title }}</span>
+        <span class="favorite-module__subtitle">{{ value.subtitle }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -23,8 +51,15 @@ import { hexToRgb } from '@/core/utils/Color'
 
 const props = defineProps<{
   value: DashboardFavoritiesModuleItem
+  hideControls?: boolean
 }>()
-
+const emit = defineEmits(['remove-module-from-favourite', 'open-module-table'])
+const removeModuleFromFavourite = () => {
+  emit('remove-module-from-favourite')
+}
+const openModuleTable = () => {
+  emit('open-module-table')
+}
 const backgroundRGB = computed(() => hexToRgb(props.value.backgroundColor))
 const backgroundColorRGBA = computed(() => {
   if (!backgroundRGB.value) return ''
@@ -53,7 +88,6 @@ const iconBorder = computed(() => {
 <style scoped lang="scss">
 .favorite-module {
   display: block;
-  height: 115px;
   border-radius: 6px;
   padding: 16px 20px;
   overflow: hidden;
@@ -70,18 +104,35 @@ const iconBorder = computed(() => {
   }
 
   &__wrapper {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
   }
 
   &__title {
     display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     margin-bottom: 6px;
     font-weight: var(--font-weight-600);
   }
 
   &__subtitle {
     display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-weight: var(--font-weight-500);
     color: var(--color-gray);
   }

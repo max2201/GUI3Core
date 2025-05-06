@@ -1,84 +1,193 @@
 <template>
-  <div :id="formId" class="client-edit-main-form">
+  <div class="client-edit-main-form">
     <div class="client-edit-main-form__scroll-wrapper">
       <div class="client-edit-main-form__wrapper">
-        <div class="client-edit-main-form__grid">
-          <UiLoader v-if="isLoadingUpdate" loading theme="page" />
+        <template v-if="objectData.LegalStatusField.currentVal !== '1'">
+          <UiPassportForm
+            style="grid-template-columns: 1fr 1fr 1fr 1fr"
+            :dialogAnchorId="formId"
+            is-full
+            v-model:document-type="objectData.DocumentTypeField.currentVal"
+            v-model:document-value="objectData.ClientDocument"
+            :document-types-options="documentTypeOptions"
+            :address-living="objectData.LivingPlace.Value.ComplexValue"
+          >
+            <UIObjectMainField
+              :field="objectData.InnField"
+              v-model="objectData.InnField.currentVal"
+              :class="'span-1'"
+            />
+            <UIObjectMainField
+              :field="objectData.SnilsField"
+              v-model="objectData.SnilsField.currentVal"
+              :class="'span-1'"
+            />
+            <UIObjectMainField
+              v-if="objectData.LegalStatusField.currentVal == '2'"
+              :field="objectData.OgrnIpField"
+              v-model="objectData.OgrnIpField.currentVal"
+              :class="'span-1'"
+            />
+            <UIObjectMainField
+              v-if="objectData.LegalStatusField.currentVal == '2'"
+              :field="objectData.IPDateRegField"
+              v-model="objectData.IPDateRegField.currentVal"
+              :class="'span-1'"
+            />
+          </UiPassportForm>
 
-          <UiSelect1
-            :model-value="{ label: 'Физ.лицо', value: 0 }"
-            :options="[{ label: 'Физ.лицо', value: 0 }]"
-            select-label="Основной документ"
-            :additional-class="['span-2']"
-          />
-
-          <div class="span-2"></div>
-
-          <UiInput1 label="Серия" />
-          <UiInput1 label="Номер" />
-          <UiDatepicker :model-value="''" label="Дата регистрации" />
-          <UiInput1 label="Код подразделения" />
-          <UiInput1 label="Кем выдан" :additional-class="['span-2']" />
-          <UiInput1 label="ИНН" />
-          <UiInput1 label="СНИЛС" />
-          <UiInput1 label="Место рождения" :additional-class="['span-2']" />
-          <UiInput1 label="Код ОКСМ" />
-          <UiInput1 label="Код ОКАТО" />
-        </div>
-
-        <div class="block">
-          <UiSwitch1 label="Прописка совпадает с адресом фактического проживания" />
-        </div>
-
-        <div class="block">
-          <div class="block-head">
-            <span class="block-head-title">Дополнительная информация</span>
+          <div class="client-edit-main-form__grid">
+            <UiFieldInput
+              id="FieldType.DriverLicence"
+              :dialogAnchorId="formId"
+              :type="FieldType.DriverLicence"
+              :label="objectData.DriverLicenceInfo.Value.Title"
+              :value="objectData.DriverLicenceInfo.Value.ComplexValue"
+              @change="onChangeField(objectData.DriverLicenceInfo.Code, $event)"
+              :subFields="objectData.DriverLicenceInfo.Value.SubFields"
+              :is-not-steps="true"
+              wrapper-class="span-4"
+            ></UiFieldInput>
+            <UiFieldInput
+              :id="FieldType.ComplexBankInfo"
+              :dialogAnchorId="formId"
+              :type="FieldType.ComplexBankInfo"
+              :label="objectData.BankPersonInfo.Value.Title"
+              :value="objectData.BankPersonInfo.Value.ComplexValue"
+              :sub-fields="objectData.BankPersonInfo.Value.SubFields"
+              @change="onChangeField(objectData.BankPersonInfo.Code, $event)"
+              wrapper-class="span-4"
+            ></UiFieldInput>
+            <UiFieldInput
+              :dialogAnchorId="formId"
+              :id="FieldType.WorkingPlace"
+              :type="FieldType.WorkingPlace"
+              :label="objectData.JobPlaceInfo.Value.Title"
+              :value="objectData.JobPlaceInfo.Value.ComplexValue"
+              :sub-fields="objectData.JobPlaceInfo.Value.SubFields"
+              @change="onChangeField(objectData.JobPlaceInfo.Code, $event)"
+              wrapper-class="span-4"
+            ></UiFieldInput>
           </div>
+        </template>
+        <template v-if="objectData.LegalStatusField.currentVal === '1'">
+          <div class="block">
+            <div class="block-head">
+              <span class="block-head-title">Уведомления и контакты</span>
+            </div>
+            <div class="block-grid">
+              <UiFieldInput
+                :id="formId"
+                :type="FieldType.ComplexFIO"
+                :label="objectData.CompanyDefaultSignerNameInfo.Value.Title"
+                :value="objectData.CompanyDefaultSignerNameInfo.Value.ComplexValue"
+                @change="onChangeField(objectData.CompanyDefaultSignerNameInfo.Code, $event)"
+                wrapper-class="span-4"
+                name="fio"
+              ></UiFieldInput>
+              <UIObjectMainField
+                :field="objectData.CompanyDefaultSignerPositionField"
+                v-model="objectData.CompanyDefaultSignerPositionField.currentVal"
+                class="span-4"
+              />
+              <UIObjectMainField
+                :field="objectData.CompanyDefaultSignerLawBaseField"
+                v-model="objectData.CompanyDefaultSignerLawBaseField.currentVal"
+                class="span-4"
+              />
+              <UiFieldInput
+                :id="formId"
+                :type="FieldType.ComplexBankInfo"
+                :label="objectData.CompanyBankInfo.Value.Title"
+                :value="objectData.CompanyBankInfo.Value.ComplexValue"
+                @change="onChangeField(objectData.CompanyBankInfo.Code, $event)"
+                wrapper-class="span-4"
+              ></UiFieldInput>
+              <UiFieldInput
+                :id="formId"
+                :type="FieldType.ComplexFIO"
+                :label="objectData.CompanyAccountantNameInfo.Value.Title"
+                :value="objectData.CompanyAccountantNameInfo.Value.ComplexValue"
+                @change="onChangeField(objectData.CompanyAccountantNameInfo.Code, $event)"
+                wrapper-class="span-4"
+                name="ComplexFIO"
+              ></UiFieldInput>
+              <UiFieldInput
+                :id="formId"
+                :type="FieldType.Address"
+                :label="objectData.CompanyActualAddressInfo.Value.Title"
+                :value="objectData.CompanyActualAddressInfo.Value.ComplexValue"
+                @change="onChangeField(objectData.CompanyActualAddressInfo.Code, $event)"
+                wrapper-class="span-4"
+                name="address"
+              ></UiFieldInput>
 
-          <div>
-            <UiInput1 label="Кем выдан" class="span-4 mb-2" />
-            <UiInput1 label="ИНН" class="span-4 mb-2" />
-            <UiInput1 label="СНИЛС" class="span-4 mb-2" />
+              <UIObjectMainField
+                :field="objectData.OkvedField"
+                v-model="objectData.OkvedField.currentVal"
+                wrapper-class="span-4"
+              />
+              <UIObjectMainField
+                :field="objectData.CompanyMainActivityField"
+                v-model="objectData.CompanyMainActivityField.currentVal"
+                wrapper-class="span-3"
+              />
+              <UIObjectMainField
+                :field="objectData.CompanyPlaceOKSMCodeField"
+                v-model="objectData.CompanyPlaceOKSMCodeField.currentVal"
+                wrapper-class="span-1"
+              />
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 
     <div class="client-edit-main-form__buttons">
-      <UiButton1 v-if="!isLoadingUpdate" theme="secondary" @click="onCancel">Отменить</UiButton1>
-      <UiButton1 :loading="isLoadingUpdate">Сохранить</UiButton1>
+      <UiButton1 v-if="!loading" theme="secondary" @click="onCancel">Отменить</UiButton1>
+      <UiButton1 :disabled="!isEdit" :loading="loading" @click="onUpdate">Сохранить</UiButton1>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, unref } from 'vue'
-import { useToast } from 'vue-toastification/dist/index.mjs'
-import { ClientValidate, ClientUpdate, ClientsGetFormFields } from '@/core/api/clients.api'
-import { GetObjectDto } from '@/core/api/object.api'
-import type { IObjectDto } from '@/core/interface/Object'
-import type { FormField } from '@/core/interface/FormField'
-import { DtoObjectViewType } from '@/core/constants/DtoObjectViewType'
-import { customAlphabet } from 'nanoid'
-import UiTabs from '@/components/Ui/DataDisplay/UiTabs.vue'
-import UiDatepicker from '@/components/Ui/DataEntry/UiDatepicker.vue'
-import IconButton from '@/components/Ui/DataDisplay/IconButton.vue'
-import UiBadge from '@/components/Ui/DataDisplay/UiBadge.vue'
-import UiSwitch from '@/components/Ui/DataEntry/UiSwitch.vue'
-
-const nanoid = customAlphabet('abcdef', 10)
-const formId = ref(nanoid(10))
+import type { IClientEditDto } from '@/core/interface/Client'
+import { FieldType } from '@/core/constants/FieldType'
 
 const props = defineProps<{
-  object: IObjectDto
+  object: IClientEditDto
+  isEdit: boolean
+  formId: string
+  loading?: boolean
 }>()
+const objectData = ref(props.object)
+const emits = defineEmits(['close', 'update'])
 
-const emits = defineEmits(['close'])
+const onChangeField = (field?: string, value?: any) => {
+  Object.keys(objectData.value).forEach((key) => {
+    if (objectData.value[key]?.Code === field) {
+      objectData.value[key].Value.ComplexValue = value
+    }
+  })
+}
 
-const isLoadingUpdate = ref(false)
-
+const documentTypeOptions = computed(() => {
+  const options = objectData.value.DocumentTypeField.values
+  if (objectData.value.RepairTypeField.currentVal === 'РФ') {
+    const newOptions = options.filter((item) => item.Value == '0')
+    objectData.value.DocumentTypeField.currentVal = newOptions[0].Value
+    return newOptions
+  } else {
+    const newOptions = options.filter((item) => item.Value !== '0')
+    objectData.value.DocumentTypeField.currentVal = newOptions[0].Value
+    return newOptions
+  }
+})
 const onCancel = () => {
   emits('close')
+}
+const onUpdate = () => {
+  emits('update')
 }
 </script>
 
@@ -99,10 +208,11 @@ const onCancel = () => {
   }
 
   &__wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 290px 16px 200px;
+    display: flex;
+    flex-direction: column;
     gap: 28px;
+    padding: 20px 12px 0 20px;
+    position: relative;
   }
 
   &__grid {
@@ -112,7 +222,6 @@ const onCancel = () => {
     grid-auto-rows: 52px;
     gap: 16px 12px;
     align-items: baseline;
-    padding: 20px 12px 0 20px;
   }
 
   &__buttons {
@@ -125,14 +234,14 @@ const onCancel = () => {
     border-top: var(--border-default);
   }
 }
-
-.foto-input {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  grid-column: 3 / 5;
-  grid-row: 2 / 5;
-  background-color: var(--component-gray-background);
-  color: var(--color-gray);
+.block {
+  padding: 0;
+}
+.block-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 152px);
+  grid-auto-rows: 52px;
+  gap: 16px 12px;
+  align-items: baseline;
 }
 </style>

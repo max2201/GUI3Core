@@ -18,27 +18,29 @@
           height: openedFreeModal.height && openedFreeModal.height + 'px',
           width: openedFreeModal.width && openedFreeModal.width + 'px',
         },
+        openedFreeModal.options?.styles?.window,
       ]"
     >
-      <div class="free-modal__header">
-        <div>
-          <SvgIcon name="chevrons-right" :width="24" :height="24" is-link @click="onClickClose" />
+      <div class="free-modal__header" :style="openedFreeModal.options?.styles?.header">
+        <!--        <div>-->
+        <SvgIcon
+          :style="openedFreeModal.options?.styles?.headerCloseIcon"
+          :name="openedFreeModal.options?.headerCloseIcon || 'chevrons-right'"
+          :width="24"
+          :height="24"
+          is-link
+          @click="onClickClose"
+        />
 
-          <span class="ml-2">
-            {{ openedFreeModal.title }}
-          </span>
-        </div>
+        <span>
+          {{ openedFreeModal.title }}
+        </span>
+        <!--        </div>-->
       </div>
 
       <ClientEditForm
         v-if="openedFreeModal.target === FreeModalTarget.EditClient"
-        :object="openedFreeModal.object"
-        @close="onCloseModal"
-      />
-
-      <RequestNewForm
-        v-if="openedFreeModal.target === FreeModalTarget.NewRequest"
-        :object="openedFreeModal.object"
+        :object="openedFreeModal.object as IObjectDto"
         @close="onCloseModal"
       />
 
@@ -52,6 +54,18 @@
         v-if="openedFreeModal.target === FreeModalTarget.MetaDataGroups"
         :lite-view-blocks="openedFreeModal.object"
       />
+
+      <WidgetEdit
+        v-if="openedFreeModal.target === FreeModalTarget.WidgetEdit"
+        :widget-params="openedFreeModal.object"
+        @close="onCloseModal"
+      ></WidgetEdit>
+
+      <WidgetView
+        v-if="openedFreeModal.target === FreeModalTarget.WidgetView"
+        :widget-params="openedFreeModal.object"
+        @close="onCloseModal"
+      ></WidgetView>
     </div>
   </div>
 </template>
@@ -63,6 +77,8 @@ import type { FreeModalArgs } from '@/core/interface/FreeModal'
 import { FreeModalTarget } from '@/core/interface/FreeModal'
 import { StopClickOutsideClasses } from '@/core/constants/StopClickOutsideClasses'
 import ObjectNotifications from '../Notifications/ObjectNotifications.vue'
+import type { IObjectDto } from '@/core/interface/Object'
+import { findEventParentWithClass } from '@/core/utils/findEventParentWithClass'
 
 const DefaultViewState = Object.freeze({
   title: '',
@@ -73,26 +89,36 @@ const DefaultViewState = Object.freeze({
 const openedFreeModal = reactive<{
   id: number
   title: string
-  target: FreeModalTarget
+  target: FreeModalTarget | null
   width: number
-  top: number
-  left: number
+  top?: number
+  left?: number
   object: any
   right?: number
   bottom?: number
   height?: number
   callback?: (args?: any) => void
+  options?: {
+    styles?: {
+      header?: any
+      window?: any
+      headerCloseIcon?: any
+    }
+    headerCloseIcon: string
+  } | null
 }>({
   id: DefaultViewState.id,
   title: DefaultViewState.title,
-  target: '',
-  top: 0,
-  left: 0,
-  width: 0,
-  right: undefined,
-  bottom: undefined,
+  target: null,
+  object: null,
   height: undefined,
+  width: 0,
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
   callback: undefined,
+  options: null,
 })
 
 const calcPosition = (initLeft: number, initTop: number, width: number) => {
@@ -119,6 +145,7 @@ const onOpenFreeModal = (args: FreeModalArgs) => {
   openedFreeModal.width = args.width
   openedFreeModal.height = args.height
   openedFreeModal.callback = args.callback
+  openedFreeModal.options = args.options
 
   calcPosition(args.left, args.top, args.width)
 }
@@ -135,7 +162,15 @@ const closeModal = () => {
 }
 
 const freeModalRef = ref()
-onClickOutside(freeModalRef, () => {
+onClickOutside(freeModalRef, (event) => {
+  const foundParentWithStopClass = findEventParentWithClass(
+    event,
+    StopClickOutsideClasses.universalWrapper,
+  )
+
+  if (foundParentWithStopClass) {
+    return
+  }
   closeModal()
 })
 
@@ -170,14 +205,10 @@ const onCloseModal = (payload: any) => {
   height: 42px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   background-color: var(--color-bg-active);
   color: var(--component-green-color);
   padding: 0 20px;
-
-  > div {
-    display: flex;
-    align-items: center;
-  }
+  gap: 4px;
 }
 </style>

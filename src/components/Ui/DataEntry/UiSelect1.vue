@@ -1,6 +1,6 @@
 <template>
   <div class="ui-select" :class="[...modifiers, ...additionalClass]">
-    <label v-if="selectLabel" class="ui-select__label" :for="id">
+    <label v-if="selectLabel" class="ui-select__label" :for="id" :title="selectLabel">
       <span
         >{{ selectLabel }}<span v-if="isRequired" class="ui-select__label-sup-star">*</span></span
       >
@@ -43,9 +43,11 @@
         :close-on-select="!multiple"
         :deselect-from-dropdown="multiple"
         :searchable="searchable"
+        append-to-body
+        :calculate-position="withPopper"
       >
         <template #open-indicator="{ attributes }">
-          <span v-bind="attributes">
+          <span class="ui-select__open-icon" v-bind="attributes">
             <SvgIcon :width="24" :height="24" name="chevron-down" />
           </span>
         </template>
@@ -92,26 +94,86 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
 import VueSelect from 'vue-select'
-import { onClickOutside } from '@vueuse/core'
+import { createPopper } from '@popperjs/core'
+import maxSize from 'popper-max-size-modifier'
+import { StopClickOutsideClasses } from '@/core/constants/StopClickOutsideClasses'
 
+const withPopper = (dropdownList, component, { width }) => {
+  /**
+   * We need to explicitly define the dropdown width since
+   * it is usually inherited from the parent with CSS.
+   */
+  dropdownList.style.width = props.dropdownWidth || width
+  dropdownList.classList.add(StopClickOutsideClasses.windowManager)
+  dropdownList.classList.add(StopClickOutsideClasses.headerNotification)
+  dropdownList.classList.add(StopClickOutsideClasses.headerTasks)
+  dropdownList.classList.add(StopClickOutsideClasses.tableTr)
+  dropdownList.classList.add(StopClickOutsideClasses.objectEventsList)
+  dropdownList.classList.add(StopClickOutsideClasses.universalWrapper)
+  dropdownList.classList.add(StopClickOutsideClasses.pageBody)
+  dropdownList.classList.add(StopClickOutsideClasses.filter)
+  /**
+   * Here we position the dropdownList relative to the $refs.toggle Element.
+   *
+   * The 'offset' modifier aligns the dropdown so that the $refs.toggle and
+   * the dropdownList overlap by 1 pixel.
+   *
+   * The 'toggleClass' modifier adds a 'drop-up' class to the Vue Select
+   * wrapper so that we can set some styles for when the dropdown is placed
+   * above.
+   */
+  const pageViewElement = document.querySelector('.page__body')
+  const popper = createPopper(component.$refs.toggle, dropdownList, {
+    placement: 'bottom',
+    modifiers: [
+      {
+        ...maxSize,
+        options: {
+          boundary: pageViewElement,
+          padding: 20,
+        },
+      },
+      {
+        name: 'applyMaxSize',
+        enabled: true,
+        phase: 'beforeWrite',
+        requires: ['maxSize'],
+        fn({ state }) {
+          const { width, height } = state.modifiersData.maxSize
+          state.styles.popper = {
+            ...state.styles.popper,
+            maxWidth: `${width}px`,
+            maxHeight: `${Math.max(100, height)}px`,
+            zIndex: '999999',
+          }
+        },
+      },
+      {
+        name: 'offset',
+        options: {
+          offset: [0, 0],
+        },
+      },
+      {
+        name: 'toggleClass',
+        enabled: true,
+        phase: 'write',
+        fn({ state }) {
+          component.$el.classList.toggle('drop-up', state.placement === 'top')
+        },
+      },
+    ],
+  })
+
+  /**
+   * To prevent memory leaks Popper needs to be destroyed.
+   * If you return function, it will be called just before dropdown is removed from DOM.
+   */
+  return () => popper.destroy()
+}
 const containerRef = ref(null)
 const vueselect = ref<any>(null)
-onClickOutside(containerRef, () => {
-  if (vueselect.value.open) {
-    vueselect.value.open = false
-  }
-})
-
-const dropdownMaxHeight = computed(() => {
-  if (containerRef.value) {
-    const windowContentRect = containerRef.value.getBoundingClientRect()
-    const result = document.body.clientHeight - windowContentRect.bottom - 70
-    return `${Math.max(result, 50)}px`
-  }
-  return '100px'
-})
-
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const emit = defineEmits([
@@ -151,6 +213,10 @@ const props = defineProps({
   additionalClass: {
     type: Array,
     default: () => [],
+  },
+  dropdownWidth: {
+    type: String,
+    default: '',
   },
   size: {
     type: String,
@@ -264,16 +330,66 @@ const onEventGlobalFocus = (id: string) => {
 EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
 </script>
 
+<style lang="scss">
+.vs__dropdown-menu {
+  padding: 8px 0;
+  background: var(--component-background);
+  border: none;
+  border-radius: 0 0 var(--input-border-radius) var(--input-border-radius);
+  box-shadow: 0 4px 15px rgba(105, 78, 75, 0.14);
+  gap: 1px;
+  display: flex;
+  flex-direction: column;
+
+  .vs__no-options {
+    padding: 14px 20px;
+    font-size: var(--font-size-14);
+    text-align: center;
+  }
+}
+
+.vs__dropdown-option {
+  min-height: 34px;
+  flex-shrink: 0;
+  position: relative;
+  padding: 8px 16px;
+  color: var(--color-font-2);
+  font-family: var(--font-base);
+  font-size: var(--font-size-14);
+  font-style: normal;
+  font-weight: var(--font-weight-400);
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: wrap;
+  transition:
+    background 0.1s $ease,
+    color 0.25s $ease;
+}
+
+.vs__dropdown-option--selected {
+  background: var(--color-bg-active-10alpha);
+}
+
+.vs__dropdown-option--highlight {
+  background: var(--color-bg-active-10alpha);
+}
+</style>
 <style lang="scss" scoped>
 .ui-select {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   gap: 4px;
+
+  &__open-icon {
+    cursor: pointer;
+  }
 
   &__list-header {
     position: sticky;
-    top: 0;
+    top: -8px;
     background: var(--component-background);
     z-index: 1;
     line-height: 18px;
@@ -290,6 +406,11 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
     color: var(--color-gray);
     line-height: 15.6px;
 
+    span {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     &-sup-star {
       color: var(--color-red);
       font-size: var(--font-size-24);
@@ -304,6 +425,7 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
         cursor: pointer;
       }
     }
+
     &-warning-icon {
       display: flex;
       color: var(--component-danger-color);
@@ -380,51 +502,6 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
         border: none;
         white-space: nowrap;
       }
-    }
-
-    :deep(.vs__dropdown-menu) {
-      top: calc(100% + 1px);
-      max-height: v-bind(dropdownMaxHeight);
-      padding: 8px 0;
-      background: var(--component-background);
-      border: none;
-      border-radius: 0 0 var(--input-border-radius) var(--input-border-radius);
-      box-shadow: 0 4px 15px rgba(105, 78, 75, 0.14);
-      gap: 1px;
-      display: flex;
-      flex-direction: column;
-
-      .vs__no-options {
-        padding: 14px 20px;
-        font-size: var(--font-size-14);
-        text-align: center;
-      }
-    }
-
-    :deep(.vs__dropdown-option) {
-      flex-shrink: 0;
-      position: relative;
-      padding: 8px 16px;
-      color: var(--color-font-2);
-      font-family: var(--font-base);
-      font-size: var(--font-size-14);
-      font-style: normal;
-      font-weight: var(--font-weight-400);
-      line-height: 18px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: wrap;
-      transition:
-        background 0.1s $ease,
-        color 0.25s $ease;
-    }
-
-    :deep(.vs__dropdown-option--selected) {
-      background: var(--color-bg-active-10alpha);
-    }
-
-    :deep(.vs__dropdown-option--highlight) {
-      background: var(--color-bg-active-10alpha);
     }
 
     &:hover {

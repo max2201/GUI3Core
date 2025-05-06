@@ -1,85 +1,106 @@
 <template>
-  <div :id="formId" class="client-edit-form">
-    <UiInfinityTabs
-      compact
-      divided
-      :tabs="tabs"
-      :active-tab-id="activeTab"
-      @tab-click="onChangeTab"
-      hide-overload
-    />
-    <ClientEditMainForm v-if="activeTab === TabsIds.Main" :object="object" @close="close" />
-    <ClientEditDocsForm v-else-if="activeTab === TabsIds.Docs" :object="object" @close="close" />
-    <ClientEditAdditionalForm
-      v-else-if="activeTab === TabsIds.Additional"
+  <div class="client-edit-form">
+    <UiTabs :tabs="tabs" :active-tab-id="activeTab" light-style @change="onChangeTab" />
+    <UiLoader :loading="loading" theme="page" />
+
+    <ClientEditMainForm
+      v-if="object && activeTab === TabsIds.Main"
       :object="object"
       @close="close"
+      @update="UpdateObject"
+      :is-edit="isEdit"
+      :formId="formId"
+      :loading="loading"
+    />
+    <ClientEditDocsForm
+      v-else-if="object && activeTab === TabsIds.Docs"
+      :object="object"
+      @close="close"
+      :is-edit="isEdit"
+      @update="UpdateObject"
+      :formId="formId"
+      :loading="loading"
+    />
+    <ClientEditAdditionalForm
+      v-else-if="object && activeTab === TabsIds.Additional"
+      :object="object"
+      :is-edit="isEdit"
+      @close="close"
+      @update="UpdateObject"
+      :formId="formId"
+      :loading="loading"
+    />
+    <UploadFilesContainer v-else-if="activeTab === TabsIds.Photos" />
+    <ClientEditIntegrationForm
+      v-else-if="object && activeTab === TabsIds.Integrations"
+      :object="object"
+      :is-edit="isEdit"
+      @save="close"
+      @update="UpdateObject"
+      :formId="formId"
+      :loading="loading"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, unref } from 'vue'
-import { useToast } from 'vue-toastification/dist/index.mjs'
-import { ClientValidate, ClientUpdate, ClientsGetFormFields } from '@/core/api/clients.api'
-import { GetObjectDto } from '@/core/api/object.api'
-import type { IObjectDto } from '@/core/interface/Object'
-import type { FormField } from '@/core/interface/FormField'
-import { DtoObjectViewType } from '@/core/constants/DtoObjectViewType'
-import { customAlphabet } from 'nanoid'
 import UiTabs from '@/components/Ui/DataDisplay/UiTabs.vue'
 import ClientEditMainForm from './ClientEditMainForm.vue'
 import ClientEditDocsForm from './ClientEditDocsForm.vue'
 import ClientEditAdditionalForm from './ClientEditAdditionalForm.vue'
-const nanoid = customAlphabet('abcdef', 10)
-
-const formId = ref(nanoid(10))
-
+import type { IClientEditDto } from '@/core/interface/Client'
+import ClientEditIntegrationForm from '@c/WindowManager/WindowObjectViews/ClientPages/ClientEditIntegrationForm.vue'
 const props = defineProps<{
-  object: IObjectDto
+  object: IClientEditDto
+  isEdit: boolean
+  loading: boolean
+  formId: string
 }>()
 
-const emits = defineEmits(['close'])
+const emits = defineEmits(['close', 'save'])
 
 enum TabsIds {
   Main = 0,
   Docs = 1,
   Additional = 2,
-  Fotos = 3,
-  Integratinos = 4,
+  Photos = 3,
+  Integrations = 4,
 }
 
 const tabs = [
   {
     id: TabsIds.Main,
-    title: 'Основные данные',
+    label: 'Основные данные',
   },
   {
     id: TabsIds.Docs,
-    title: 'Документы',
+    label: 'Документы',
   },
   {
     id: TabsIds.Additional,
-    title: 'Дополнительно',
+    label: 'Дополнительно',
   },
   {
-    id: TabsIds.Fotos,
-    title: 'Фотографии',
+    id: TabsIds.Photos,
+    label: 'Фотографии',
   },
   {
-    id: TabsIds.Integratinos,
-    title: 'Интеграция',
+    id: TabsIds.Integrations,
+    label: 'Интеграция',
   },
 ]
 
 const activeTab = ref(TabsIds.Main)
 
-const onChangeTab = ({ id }: { id: TabsIds }) => {
-  activeTab.value = id
+const onChangeTab = (tabId: TabsIds) => {
+  activeTab.value = tabId
 }
 
 const close = () => {
   emits('close')
+}
+const UpdateObject = () => {
+  emits('save')
 }
 </script>
 
@@ -89,8 +110,5 @@ const close = () => {
   grid-template-columns: 1fr;
   grid-template-rows: 40px auto;
   overflow: hidden;
-}
-:deep(.tabs__scroller) {
-  border-bottom: var(--border-default);
 }
 </style>

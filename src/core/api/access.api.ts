@@ -11,8 +11,8 @@ interface VerifyAccessPayload {
   TypeOperation: AccessVerifyOperationType
   Id: number
   BaseObjectType: number
-  // BaseObjectName: string
-  // BaseObjectDate: string
+  BaseObjectName?: string
+  BaseObjectDate?: string
 }
 
 export const VerifyAccess = async (payload: VerifyAccessPayload) => {

@@ -4,25 +4,28 @@
       v-if="objectData"
       :client-id="objectId"
       :name="objectData.BaseObjectName"
-      :phones="objectData.Phones || []"
+      :phones="objectData?.Phones"
       :last-active="objectData.BaseObjectDate"
     />
 
     <div class="client-main-page__middle-section">
       <div class="client-main-page__middle-section__left">
         <div class="about-column">
-          <div class="client-foto">
-            <div class="client-foto-content"></div>
+          <div v-if="objectData?.PhotoUrl" class="client-photo">
+            <div class="client-photo-content">
+              <UiExternalImage width="auto" height="auto" :src="objectData.PhotoUrl">
+              </UiExternalImage>
+            </div>
           </div>
-          <div v-if="isBlockNewDeals" class="disable-client-deal">
+          <div v-if="objectData?.IsBanned" class="disable-client-deal">
             <SvgIcon name="forbidden-circle" />
             <span>Запрет на заключение договора</span>
           </div>
           <CommentField
             class="call-main-page__content-side-item"
             :field="{
-              Title: objectData.CommentField?.title,
-              Value: objectData.CommentField?.currentVal,
+              Title: objectData?.CommentField?.title,
+              Value: objectData?.CommentField?.currentVal,
             }"
             editable
             :is-loading="isLoadingCommentUpdate"
@@ -42,135 +45,72 @@
 
       <div class="client-main-page__middle-section__right">
         <div class="main__stats">
-          <div class="stats-item">
-            <div class="stats-item__label">Текущий баланс</div>
-            <div class="stats-item__value stats-item__value_danger">300 000</div>
-            <div class="stats-item__mark stats-item__mark_danger" />
-          </div>
+          <TypeFieldRenderer
+            v-if="objectData?.ClientBalancePanel"
+            :field="objectData?.ClientBalancePanel"
+          ></TypeFieldRenderer>
+          <TypeFieldRenderer
+            v-if="objectData?.ClientDebetPanel"
+            :field="objectData?.ClientDebetPanel"
+          ></TypeFieldRenderer>
 
-          <div class="stats-item">
-            <div class="stats-item__label">Задолженность</div>
-            <div class="stats-item__value stats-item__value_danger">-8500</div>
-            <div class="stats-item__mark stats-item__mark_danger" />
-          </div>
-
-          <div class="stats-item">
-            <div class="stats-item__label">Лицевой счет</div>
-            <div class="stats-item__value">1200 / 4500</div>
-            <div class="stats-item__mark" />
-          </div>
-
-          <div class="stats-item">
-            <div class="stats-item__label">Скидка/бонус</div>
-            <div class="stats-item__value">3% / -</div>
-            <div class="stats-item__mark" />
-          </div>
+          <TypeGroupRenderer
+            v-for="group in objectData?.PrimaryCurrentClientAccount?.Groups"
+            :key="`group-${group.Code}`"
+            :group="group"
+          ></TypeGroupRenderer>
+          <TypeGroupRenderer
+            v-if="objectData?.ClientDiscountGroup"
+            :group="objectData?.ClientDiscountGroup"
+          ></TypeGroupRenderer>
         </div>
 
         <div class="main__contacts">
-          <div>
-            <h3 class="mb-3">Основные данные</h3>
-            <LiteViewField :field="{ Title: 'Категория', Value: 'Сотрудник' }" />
-            <LiteViewField :field="{ Title: 'Роль контрагента', Value: 'Клиент, Поставщик' }" />
-            <LiteViewField :field="{ Title: 'Кодовое слово', Value: 'не задано' }" />
-            <LiteViewField :field="{ Title: 'ЭЦП', Value: 'Дата подписания 02.09.2024' }" />
-          </div>
-          <div>
-            <h3 class="mb-3">Получение уведомлений</h3>
-            <LiteViewField :field="{ Title: 'Уведомления', Value: 'подключены' }" />
-            <LiteViewField :field="{ Title: 'Реклама', Value: 'отключена' }" />
-            <LiteViewField :field="{ Title: 'Телефон', Value: '+7 963 320 32 32' }" />
-          </div>
+          <TypeGroupRenderer
+            v-if="objectData?.PrimaryBlockGroup"
+            :key="`group-${objectData?.PrimaryBlockGroup.Code}`"
+            class="call-edit-page__linked-object-group"
+            :group="objectData?.PrimaryBlockGroup"
+          >
+            <template #fields="{ fields }">
+              <TypeFieldRenderer
+                v-for="field in fields"
+                :key="`field-${field.Code}`"
+                :field="field"
+              ></TypeFieldRenderer>
+            </template>
+          </TypeGroupRenderer>
+          <TypeGroupRenderer
+            v-if="objectData?.NotificationsBlockGroup"
+            :key="`group-${objectData?.NotificationsBlockGroup.Code}`"
+            class="call-edit-page__linked-object-group"
+            :group="objectData?.NotificationsBlockGroup"
+          >
+            <template #fields="{ fields }">
+              <TypeFieldRenderer
+                v-for="field in fields"
+                :key="`field-${field.Code}`"
+                :field="field"
+              ></TypeFieldRenderer>
+            </template>
+          </TypeGroupRenderer>
         </div>
 
         <div class="main__entities">
-          <div class="entity-card">
-            <h3 class="entity-card__label mb-3">Договора</h3>
-            <div class="entity-card__stats mb-2">
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">всего</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">открыто</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-            </div>
-            <div class="entity-card__info">
-              Последний договор <SvgIcon :width="11" :height="11" name="open-here" />
-            </div>
-          </div>
-
-          <div class="entity-card">
-            <h3 class="entity-card__label mb-3">Звонки</h3>
-            <div class="entity-card__stats mb-2">
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">всего</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">открыто</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-            </div>
-            <div class="entity-card__info">
-              Последний договор <SvgIcon :width="11" :height="11" name="open-here" />
-            </div>
-          </div>
-
-          <div class="entity-card">
-            <h3 class="entity-card__label mb-3">Заявки</h3>
-            <div class="entity-card__stats mb-2">
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">всего</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">открыто</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-            </div>
-            <div class="entity-card__info">
-              Последний договор <SvgIcon :width="11" :height="11" name="open-here" />
-            </div>
-          </div>
-
-          <div class="entity-card">
-            <h3 class="entity-card__label mb-3">Диалогов</h3>
-            <div class="entity-card__stats mb-2">
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">всего</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-
-              <div class="entity-card__stat">
-                <div class="entity-card__stat__label mb-1">открыто</div>
-                <div class="entity-card__stat__count">
-                  <SvgIcon :width="20" :height="20" name="text" /> 2
-                </div>
-              </div>
-            </div>
-            <div class="entity-card__info">
-              Последний договор <SvgIcon :width="11" :height="11" name="open-here" />
-            </div>
-          </div>
+          <TypeGroupRenderer
+            class="call-edit-page__metrics-group"
+            v-for="group in objectData?.PrimaryClientMetrics.Groups"
+            :key="`group-${group.Code}`"
+            :group="group"
+          >
+            <template #fields="{ fields }">
+              <TypeFieldRenderer
+                v-for="field in fields"
+                :key="`field-${field.Code}`"
+                :field="field"
+              ></TypeFieldRenderer>
+            </template>
+          </TypeGroupRenderer>
         </div>
       </div>
     </div>
@@ -187,13 +127,14 @@
 <script setup lang="ts">
 import InlineFileInfo from '@/components/Ui/DataDisplay/InlineFileInfo.vue'
 import SvgIcon from '@/components/Ui/DataDisplay/SvgIcon.vue'
-import type { IObjectDto } from '@/core/interface/Object'
+import type { IClient, IObjectDto } from '@/core/interface/Object'
 import type { ClientObject } from '@/core/model/ClientObject'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import {
   ClientUpdateAdditionalData,
   ClientUpdateAdditionalDataValidate,
 } from '@/core/api/clients.api'
+import type { IClientDto } from '@/core/interface/Client'
 
 const props = defineProps<{
   objectId: number
@@ -205,7 +146,7 @@ const windowStore = useWindowStore()
 const toast = useToast()
 
 let object: ClientObject
-const objectData = ref<IObjectDto | null>(null)
+const objectData = ref<IClientDto | null>(null)
 
 const emits = defineEmits(['edit', 'create-new'])
 
@@ -218,7 +159,7 @@ const onClickEdit = () => {
 
 const isCommentEditing = computed({
   get() {
-    return objectData.value.CommentField.editing
+    return objectData.value?.CommentField.editing
   },
   set(newValue) {
     objectData.value.CommentField.editing = newValue
@@ -270,7 +211,41 @@ const editCommentSave = async () => {
 }
 
 const isBlockNewDeals = ref(true)
+const asyncBlockLoading = ref(false)
 
+const unloadedAsyncBlockCodes = computed(() => {
+  if (!objectData.value) {
+    return []
+  }
+
+  return Object.entries(objectData.value)
+    .filter(([_, prop]) => prop?.DataLoaded === false)
+    .map(([key, _]) => key)
+})
+
+const loadAsyncBlocksData = async () => {
+  asyncBlockLoading.value = true
+  try {
+    const loadPromises = unloadedAsyncBlockCodes.value.map((blockCode) =>
+      object.loadAsyncBlockData(blockCode),
+    )
+
+    await Promise.all(loadPromises)
+  } catch (error) {
+    console.error('Error loading async blocks:', error)
+  } finally {
+    asyncBlockLoading.value = false
+  }
+}
+
+watch(
+  () => unloadedAsyncBlockCodes.value,
+  async (blocks) => {
+    if (blocks.length) {
+      await loadAsyncBlocksData()
+    }
+  },
+)
 watch(
   () => props.objectId,
   () => {
@@ -298,7 +273,12 @@ watch(
 
 <style scoped lang="scss">
 @import './clientPages.scss';
-
+.client-main-page {
+  display: grid;
+  grid-template-columns: auto;
+  overflow: hidden;
+  grid-template-rows: 60px auto 60px;
+}
 .client-main-page__actions {
   background: var(--color-background);
   border-top: 1px solid var(--color-border);
@@ -343,11 +323,15 @@ watch(
   gap: 20px;
 }
 
-.client-foto {
+.client-photo {
   display: block;
-  background-color: darkturquoise;
   width: 252px;
   height: 160px;
+  align-items: center;
+  max-height: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
 }
 .disable-client-deal {
   display: flex;

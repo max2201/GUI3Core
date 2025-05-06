@@ -54,11 +54,12 @@ import type { GetDtoObjectsForCustomTablePayload } from '@/core/api/modules.api'
 import type { ISelect, SortingDirectionType } from '@/core/interface/Ui'
 import type { LiteViewArgs } from '@/core/interface/LiteView'
 import { useToast } from 'vue-toastification'
+import type { IClientDto } from '@/core/interface/Client'
 
 const toast = useToast()
 
 const props = defineProps<{
-  object: IObjectDto
+  object: IObjectDto | IClientDto
   tableKey: string
   tableName: string
   loading: boolean

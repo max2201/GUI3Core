@@ -6,6 +6,7 @@ export interface TableState {
   perPageOptions: Ref<Array<{ label: string; value: number }>>
   toggleBatchEditing: (v: boolean) => void
   toggleSelectedBatchIds: (id: number) => void
+  toggleSelectedBatchId: (id: number) => void
   selectedAllBatchIds: (ids: number[]) => void
   setGroupOperation: (name: string) => void
   toggleExpanded: (id: number) => void
@@ -17,7 +18,8 @@ export const useTableState = (): {
   toggleExpanded: (id: number) => void
   setGroupOperation: (name: string) => void
   reset: () => void
-  selectedBatchIds: any
+  selectedBatchIds?: any
+  toggleSelectedBatchId: (id: number) => void
   expandedRowIds: any
   toggleBatchEditing: (v: boolean) => void
   batchEditing: any
@@ -52,7 +54,14 @@ export const useTableState = (): {
     const update = toggleArray(selectedBatchIds.value, id)
     selectedBatchIds.value = update
   }
-
+  const toggleSelectedBatchId = (id: number) => {
+    console.log(id)
+    if (selectedBatchIds.value.includes(id)) {
+      selectedBatchIds.value = []
+      return
+    }
+    selectedBatchIds.value = [id]
+  }
   const toggleExpanded = (id: number) => {
     const update = toggleArray(expandedRowIds.value, id)
     expandedRowIds.value = update
@@ -84,6 +93,7 @@ export const useTableState = (): {
     toggleSelectedBatchIds,
     toggleExpanded,
     selectedAllBatchIds,
+    toggleSelectedBatchId,
     setGroupOperation,
     reset,
   }

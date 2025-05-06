@@ -3,4 +3,5 @@ export enum LOCALSTORAGE {
   Configuration = 'configuration',
   FavoritesModules = 'favoriteModules',
   FavoriteObjects = 'favoriteObjects',
+  DashboardLayout = 'dashboardLayout',
 }

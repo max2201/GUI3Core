@@ -6,7 +6,7 @@
     <div class="ui-switch__wrapper">
       <div class="ui-switch__dot" />
     </div>
-    <div v-if="label" class="ui-switch__label">{{ label }}</div>
+    <div v-if="label" class="ui-switch__label" :title="label">{{ label }}</div>
   </div>
 </template>
 
@@ -35,14 +35,13 @@ const change = () => {
 <style lang="scss" scoped>
 .ui-switch {
   $this: &;
-
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  width: fit-content;
 
   &__wrapper {
+    flex-shrink: 0;
     display: flex;
     position: relative;
     width: 28px;
@@ -86,6 +85,11 @@ const change = () => {
     }
   }
 
+  &__label{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   &--disabled {
     opacity: 0.5;
     cursor: not-allowed;

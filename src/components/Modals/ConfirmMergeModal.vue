@@ -47,7 +47,7 @@ const sharedModals = useSharedModalsStore()
 const { modalParams } = storeToRefs(sharedModals)
 
 import { useTableState } from '@/composables/use-table-state'
-import type { ITableRow } from '@/core/interface/Table'
+import type { ITableDatasetMeta, ITableRow } from '@/core/interface/Table'
 import { TableCellTypes } from '@/core/constants/TableCellTypes'
 import type { SortingDirectionType } from '@/core/interface/Ui'
 

@@ -1,9 +1,5 @@
 <template>
-  <div class="request-new-view">
-    <SvgIcon name="stub-box" :width="170" :height="180" />
-    <div>Создание новой заявки</div>
-  </div>
-  <request-new-form :object-id="objectId"></request-new-form>
+  <div class="request-new-view"><request-new-form :object-id="objectId"></request-new-form></div>
 </template>
 
 <script lang="ts" setup>

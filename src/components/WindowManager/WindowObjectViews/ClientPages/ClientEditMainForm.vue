@@ -1,260 +1,208 @@
 <template>
-  <div :id="formId" class="client-edit-main-form">
+  <div class="client-edit-main-form">
     <div class="client-edit-main-form__scroll-wrapper">
-      <div class="client-edit-main-form__wrapper">
+      <div class="client-edit-main-form__wrapper" v-if="objectData">
         <div class="client-edit-main-form__grid">
-          <UiLoader v-if="isLoadingUpdate" loading theme="page" />
-
-          <UiSelect1
-            :model-value="{ label: 'Физ.лицо', value: 0 }"
-            :options="[{ label: 'Физ.лицо', value: 0 }]"
-            select-label="Юридический статус"
+          <UIObjectMainField
+            v-if="objectData?.LegalStatusField"
+            :field="objectData.LegalStatusField"
+            v-model="objectData.LegalStatusField.currentVal"
+            :title-value="true"
+            wrapper-class="span-1"
+          />
+          <UIObjectMainField
+            v-if="objectData.CategoryField"
+            :field="objectData.CategoryField"
+            v-model="objectData.CategoryField.currentVal"
+            wrapper-class="span-1"
+          />
+          <UIObjectMainField
+            v-if="objectData.ClientsGroupField"
+            :field="objectData.ClientsGroupField"
+            v-model="objectData.ClientsGroupField.currentVal"
+            wrapper-class="span-2"
           />
 
-          <UiSelect1
-            :model-value="{ label: 'Сотрудник', value: 0 }"
-            :options="[{ label: 'Сотрудник', value: 0 }]"
-            select-label="Категория клиента"
-          />
+          <template v-if="objectData.LegalStatusField.currentVal === '1'">
+            <UIObjectMainField
+              :field="objectData.LegalTypeField"
+              v-model="objectData.LegalTypeField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.CompanyNameField"
+              v-model="objectData.CompanyNameField.currentVal"
+              wrapper-class="span-2"
+            />
+            <UIObjectMainField
+              :field="objectData.CompanyInnField"
+              v-model="objectData.CompanyInnField.currentVal"
+            />
+            <UiFieldInput
+              :id="formId"
+              :type="FieldType.Address"
+              :label="objectData.CompanyAddress.Value.Title"
+              :value="objectData.CompanyAddress.Value.ComplexValue"
+              @change="onChangeField(objectData?.CompanyAddress?.Code, $event)"
+              wrapper-class="span-4"
+            ></UiFieldInput>
 
-          <UiSelect1
-            :model-value="{ label: 'Клиент, Партнер', value: 0 }"
-            :options="[{ label: 'Клиент, Партнер', value: 0 }]"
-            select-label="Роль контрагента"
-            :additional-class="['span-2']"
-          />
+            <UIObjectMainField
+              :field="objectData.CompanyDateRegistrationField"
+              v-model="objectData.CompanyDateRegistrationField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.CompanyOgrnField"
+              v-model="objectData.CompanyOgrnField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.CompanyKppField"
+              v-model="objectData.CompanyKppField.currentVal"
+            />
 
-          <UiFIOInput
-            :value="form[FormFields.FIO]"
-            :dialog-anchor-id="formId"
-            name="clientEditFIO"
-            label="ФИО"
-            class="span-2"
-            @change="onChangeField(FormFields.FIO, $event)"
-          />
+            <UIObjectMainField
+              :field="objectData.CompanyOkpoField"
+              v-model="objectData.CompanyOkpoField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.CeoPositionField"
+              v-model="objectData.CeoPositionField.currentVal"
+              wrapper-class="span-2"
+            />
+            <UiFieldInput
+              :id="formId"
+              :type="FieldType.ComplexFIO"
+              :label="objectData.CeoFio.Value.Title"
+              :value="objectData.CeoFio.Value.ComplexValue"
+              @change="onChangeField(objectData.CeoFio.Code, $event)"
+              wrapper-class="span-2"
+            ></UiFieldInput>
+          </template>
+          <template v-else>
+            <UiFieldInput
+              :dialogAnchorId="formId"
+              id="FioPerson"
+              :type="FieldType.ComplexFIO"
+              :label="objectData.FioPerson.Value.Title"
+              :value="objectData.FioPerson.Value.ComplexValue"
+              @change="onChangeField(objectData.FioPerson.Code, $event)"
+              wrapper-class="span-2"
+              name="fio"
+            ></UiFieldInput>
 
-          <UiDatepicker
-            :max-date="new Date()"
-            :model-value="'15.01.2000'"
-            label="Дата рождения"
-          />
+            <UIObjectMainField
+              :field="objectData.DateBirthdayField"
+              v-model="objectData.DateBirthdayField.currentVal"
+              :max-date="new Date()"
+            />
+            <UIObjectMainField
+              :field="objectData.SexField"
+              v-model="objectData.SexField.currentVal"
+              :title-value="true"
+            />
+            <UIObjectMainField
+              :field="objectData.RepairTypeField"
+              v-model="objectData.RepairTypeField.currentVal"
+              taggable
+              searchable
+              :title-value="true"
+            />
 
-          <UiSelect1
-            :model-value="{ label: 'М', value: 0 }"
-            :options="[
-              { label: 'М', value: 0 },
-              { label: 'Ж', value: 1 },
-            ]"
-            select-label="Пол"
-          />
-
-          <UiSelect1
-            :model-value="{ label: 'РФ', value: 0 }"
-            :options="[
-              { label: 'РФ', value: 0 },
-              { label: 'не РФ', value: 1 },
-            ]"
-            select-label="Гражданство"
-          />
-
-          <UiInput1
-            v-model="form.CodeWord"
-            :id="codeWordID"
-            :theme="isCodeWordValid === true ? 'success' : undefined"
-            :error="isCodeWordValid === false"
-            label="Кодовое слово"
-          />
-
-          <div class="foto-input">Для фото</div>
-
-          <UiAddressInput
-            :value="form[FormFields.PlaceOfResidence]"
-            :dialog-anchor-id="formId"
-            name="clientEditPlaceOfResidence"
-            label="Адрес фактического места жительства"
-            class="span-4"
-            @change="onChangeField(FormFields.PlaceOfResidence, $event)"
-          />
+            <UiFieldInput
+              id="LivingPlace"
+              :dialogAnchorId="formId"
+              :type="FieldType.Address"
+              :label="objectData.LivingPlace.Value.Title"
+              :value="objectData.LivingPlace.Value.ComplexValue"
+              @change="onChangeField(objectData?.LivingPlace?.Code, $event)"
+              name="address"
+              wrapper-class="span-4"
+            ></UiFieldInput>
+            <div class="photo-input">Для фото</div>
+          </template>
         </div>
 
         <div class="block">
-          <div class="block-head">
-            <span class="block-head-title">Телефоны</span>
-            <UiButton1 :icon-size="24" icon-left="plus-circle" size="small"></UiButton1>
-          </div>
-
-          <div>
-            <div class="telephone-row telephone-row__main">
-              <div class="telephone-number">
-                952 107-2322
-                <UiBadge value="основной" passive primary />
-              </div>
-              <div class="telephone-description">лишний раз лучше не звонить</div>
-            </div>
-            <div class="telephone-row">
-              <div class="telephone-number">952 555-2322</div>
-              <div class="telephone-description">непонятный номер</div>
-            </div>
-            <div class="telephone-row">
-              <div class="telephone-number">901 222-2552</div>
-              <div class="telephone-description">вроде его</div>
-            </div>
-          </div>
+          <CollectionTable
+            v-if="objectData?.PhonesInfo"
+            type="phones-draggable"
+            :object="objectData.PhonesInfo"
+            :id="formId"
+          ></CollectionTable>
         </div>
 
         <div class="block">
           <div class="block-head">
             <span class="block-head-title">Уведомления и контакты</span>
             <div class="d-flex">
-              <UiSwitch1 label="Уведомления" class="mr-3" />
-              <UiSwitch1 label="Реклама" />
+              <UIObjectMainField
+                :field="objectData.AgreeDogovorMessagesField"
+                v-model="objectData.AgreeDogovorMessagesField.currentVal"
+                title="Уведомления"
+                :is-switch="true"
+                class="mr-3"
+              />
+              <UIObjectMainField
+                :field="objectData.AgreeReklamaMessagesField"
+                v-model="objectData.AgreeReklamaMessagesField.currentVal"
+                is-switch
+                title="Реклама"
+              />
             </div>
           </div>
 
-          <div class="notification-inputs">
-            <UiInput1 label="Телефон для уведомл." />
-            <UiInput1 label="Электронная почта" />
-            <UiInput1 label="Телеграм" />
-            <UiInput1 label="Способ отправки" />
+          <div class="notification-inputs" v-if="objectData?.NotifyNumberField">
+            <UIObjectMainField
+              :field="objectData.NotifyNumberField"
+              v-model="objectData.NotifyNumberField.currentVal"
+              wrapper-class="span-2"
+            />
+            <UIObjectMainField
+              :field="objectData.MailField"
+              v-model="objectData.MailField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.DeliveryTypeField"
+              v-model="objectData.DeliveryTypeField.currentVal"
+            />
           </div>
         </div>
       </div>
     </div>
 
     <div class="client-edit-main-form__buttons">
-      <UiButton1 v-if="!isLoadingUpdate" theme="secondary" @click="onCancel">Отменить</UiButton1>
-      <UiButton1 :loading="isLoadingUpdate" @click="updateClient">Сохранить</UiButton1>
+      <UiButton1 v-if="!loading" theme="secondary" @click="onCancel">Отменить</UiButton1>
+      <UiButton1 :disabled="!isEdit" :loading="loading" @click="onUpdate">Сохранить</UiButton1>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, unref } from 'vue'
-import { useToast } from 'vue-toastification/dist/index.mjs'
-import { ClientValidate, ClientUpdate, ClientsGetFormFields } from '@/core/api/clients.api'
-import { GetObjectDto } from '@/core/api/object.api'
-import type { IObjectDto } from '@/core/interface/Object'
-import type { FormField } from '@/core/interface/FormField'
-import { DtoObjectViewType } from '@/core/constants/DtoObjectViewType'
-import { customAlphabet } from 'nanoid'
-import UiTabs from '@/components/Ui/DataDisplay/UiTabs.vue'
-import UiDatepicker from '@/components/Ui/DataEntry/UiDatepicker.vue'
-import IconButton from '@/components/Ui/DataDisplay/IconButton.vue'
-import UiBadge from '@/components/Ui/DataDisplay/UiBadge.vue'
-import UiSwitch from '@/components/Ui/DataEntry/UiSwitch.vue'
-
-const nanoid = customAlphabet('abcdef', 10)
-
-const formId = ref(nanoid(10))
+import type { IClientEditDto } from '@/core/interface/Client'
+import { FieldType } from '@/core/constants/FieldType'
 
 const props = defineProps<{
-  object: IObjectDto
+  object: IClientEditDto
+  isEdit: boolean
+  formId: string
+  loading?: boolean
 }>()
 
-const emits = defineEmits(['close'])
+const emits = defineEmits(['close', 'update'])
 
-const codeWordID = 'codeWordID'
+const objectData = ref(props.object)
 
-const FormFields = {
-  FIO: 'FIO',
-  CodeWord: 'CodeWord',
-  PlaceOfResidence: 'PlaceOfResidence',
-}
-
-const form = reactive({
-  CodeWord: '',
-  FIO: '',
-  PlaceOfResidence: '',
-})
-const isCodeWordValid = computed(() => undefined)
-
-const onChangeField = (field: string, value: any) => {
-  form[field] = value
-}
-
-const toast = useToast()
-
-let objectDTO: null | any = null
-
-const getObjectEditDto = async () => {
-  const result = await GetObjectDto({
-    ObjectId: props.object.BaseObjectId < 0 ? -1 : props.object.BaseObjectId,
-    BaseObjectType: props.object.BaseObjectType,
-    DtoViewType: DtoObjectViewType.PrimaryEdit,
-    ReturnEmptyObject: props.object.BaseObjectId < 0,
-    ModuleId: props.object.BaseObjectId < 0 ? 'ClientsModule' : undefined,
-  })
-
-  if (!result.data) {
-    toast.error('Ошибка при попытке получить данные клиента: ' + result.error)
-    return
-  }
-
-  objectDTO = result.data
-}
-
-let formFields: null | FormField[] = null
-
-const getFormFields = async () => {
-  const result = await ClientsGetFormFields()
-
-  if (!result.data) {
-    toast.error('Ошибка при попытке получить данные формы: ' + result.error)
-    return
-  }
-
-  formFields = result.data
-}
-
-const prepareEditForm = () => {
-  Promise.all([getObjectEditDto(), getFormFields()]).then(() => {
-    form.CodeWord = objectDTO.CodeWord
-    form.FIO = JSON.stringify(objectDTO.FIO)
-    form.PlaceOfResidence = JSON.stringify(objectDTO.PlaceOfResidence)
+const onChangeField = (field?: string, value?: any) => {
+  Object.keys(objectData.value).forEach((key) => {
+    if (objectData.value[key]?.Code === field) {
+      objectData.value[key].Value.ComplexValue = value
+    }
   })
 }
-
-prepareEditForm()
-
-const getVals = () => {
-  return (formFields || [])?.reduce((acc, fieldSettings) => {
-    acc[fieldSettings.FieldCode] = form[fieldSettings.Mapping]
-    return acc
-  }, {})
-}
-
-const isLoadingUpdate = ref(false)
-
-const updateClient = async () => {
-  const ObjectId = props.object.BaseObjectId < 0 ? -1 : props.object.BaseObjectId
-  const Vals = getVals()
-
-  isLoadingUpdate.value = true
-
-  const validateResult = await ClientValidate({ Vals })
-
-  if (!validateResult?.data?.TotalOk) {
-    toast.error('Ошибка валидации полей.')
-    isLoadingUpdate.value = false
-    return
-  }
-
-  ClientUpdate({ ObjectId, Vals })
-    .then((result) => {
-      if (!result?.data || result.error) {
-        toast.error('Ошибка при загрузке дополнительной информации: ', result.error)
-        return
-      }
-
-      emits('close', { ...result.data, BaseObjectId: result.data.Id } as IObjectDto)
-    })
-    .finally(() => {
-      isLoadingUpdate.value = false
-    })
-}
-
 const onCancel = () => {
   emits('close')
+}
+const onUpdate = () => {
+  emits('update')
 }
 </script>
 
@@ -266,7 +214,6 @@ const onCancel = () => {
   grid-template-columns: 1fr;
   grid-template-rows: auto 56px;
   overflow: auto;
-
   &__scroll-wrapper {
     display: grid;
     grid-template-columns: 1fr;
@@ -275,19 +222,18 @@ const onCancel = () => {
   }
 
   &__wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 350px 160px 95px;
+    display: flex;
+    flex-direction: column;
     gap: 28px;
+    padding-bottom: 20px;
   }
 
   &__grid {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(4, 152px);
+    grid-template-columns: repeat(4, 151.5px);
     grid-auto-rows: 52px;
-    gap: 16px 12px;
-    align-items: baseline;
+    gap: 16px 8px;
     padding: 20px 12px 0 20px;
   }
 
@@ -302,7 +248,7 @@ const onCancel = () => {
   }
 }
 
-.foto-input {
+.photo-input {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -340,8 +286,8 @@ const onCancel = () => {
 
 .notification-inputs {
   display: grid;
-  grid-template-columns: repeat(4, 152px);
+  grid-template-columns: repeat(4, 151.5px);
   grid-auto-rows: 52px;
-  gap: 16px 12px;
+  gap: 16px 8px;
 }
 </style>

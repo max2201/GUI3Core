@@ -8,7 +8,7 @@ export interface IOpenWindowTabPayload {
   title: string
   color?: string
   type: BaseObjectType
-  object: BaseObject
+  object: BaseObject<any>
 }
 
 export interface IWindowTab {
@@ -16,7 +16,8 @@ export interface IWindowTab {
   title: string
   color?: string
   type: BaseObjectType
-  object: BaseObject
+  object: BaseObject<any>
+  objectEdit?: BaseObject<any>
   contentTab: number
   editMode: boolean
 }

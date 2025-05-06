@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
 
-const id = nanoid(10)
+const id = 'id_' + nanoid(10)
 const inputRef = ref<HTMLInputElement | null>(null)
 const props = defineProps({
   type: {

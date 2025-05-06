@@ -1,8 +1,71 @@
 import type { IApiResponse } from '@/core/interface/Api'
 import type { IClientContact } from '@/core/interface/ClientContact'
-import type { ValidateResult } from '@/core/interface/ValidateResult'
+import type { ValidateResult, ValidateSameClients } from '@/core/interface/ValidateResult'
 import type { FormField } from '@/core/interface/FormField'
-
+export interface IClientValidateVals {
+  DocumentType: string
+  chbAgreeDogovorMessages: string
+  chbAgreeReklamaMessages: string
+  chbApiDisabled: string
+  chbBan: string
+  chbEnabledBonuses: string
+  chbMobileAppExists: string
+  chbNoMail: string
+  ctrlCategory: string
+  ctrlCompanyAccountantName: string
+  ctrlCompanyActualAddress: string
+  ctrlCompanyBank: string
+  ctrlCompanyDefaultSignerName: string
+  ctrlJobPlace: string
+  ctrlClientDocument: string
+  ctrlLegalDefaultInfo2_CtrlCeoFio: string
+  ctrlLegalDefaultInfo2_CtrlCompanyAddress: string
+  ctrlLegalDefaultInfo2_DdlCeoPosition: string
+  ctrlLegalDefaultInfo2_DdlLegalType: string
+  ctrlLegalDefaultInfo2_TxtCompanyDateRegistration: string
+  ctrlLegalDefaultInfo2_TxtCompanyInn: string
+  ctrlLegalDefaultInfo2_TxtCompanyKpp: string
+  ctrlLegalDefaultInfo2_TxtCompanyName: string
+  ctrlLegalDefaultInfo2_TxtCompanyOgrn: string
+  ctrlLegalDefaultInfo2_TxtCompanyOkpo: string
+  ctrlPersonDefaultInfo1_CtrlFio: string
+  ctrlPersonDefaultInfo1_CtrlLivingPlace: string
+  ctrlPersonDefaultInfo1_DateBirthday: string
+  ctrlSubCat: string
+  ddlCategory: string
+  ddlClientsGroup: string
+  ddlDeliveryType: string
+  ddlLegalStatus: string
+  infoAnketa: string
+  infoBankPerson: string
+  infoBonusCard: string
+  infoDriverLicence: string
+  txtBonus: string
+  txtCode1: string
+  txtCode2: string
+  txtCodeWord: string
+  txtComment: string
+  txtCompanyDefaultSignerLawBase: string
+  txtCompanyDefaultSignerPosition: string
+  txtCompanyMainActivity: string
+  txtCompanyPlaceOKSMCode: string
+  txtCreditRaiting: string
+  txtDiscount: string
+  txtINN: string
+  txtIPDateReg: string
+  txtInitialBonuses: string
+  txtInitialPersonalAccount: string
+  txtInitialProfit: string
+  txtIntegrationId: string
+  txtMail: string
+  txtNotifyNumber: string
+  txtOgrnIp: string
+  txtOkved: string
+  txtSingleContractDate: string
+  txtSingleContractNumber: string
+  txtSingleContractTitle: string
+  txtSnils: string
+}
 export const GetClientAutoCompleteList = async (pattern: string) => {
   const { data, error }: IApiResponse<IClientContact[]> = await useApi(
     'Clients.GetAutoComliteList',
@@ -26,19 +89,72 @@ export const GetClientPhones = async (clientId: number) => {
   return { data, error }
 }
 
-export const ClientValidate = async (payload: { Vals: Record<string, any> }) => {
-  const { Vals } = payload
+export const ClientValidate = async (payload: { Id: number; Vals: Record<string, any> }) => {
+  const { Vals, Id } = payload
 
   const { data, error }: IApiResponse<ValidateResult> = await useApi('Clients.Validate', {
     body: {
-      OperationCode: 'SaveClient',
+      OperationCode: 'Clients.SaveClient',
+      ObjectId: Id,
       Vals,
     },
   })
 
   return { data, error }
 }
+export const ClientCheckSameInnClients = async (payload: {
+  Id: number
+  Vals: Record<string, any>
+}) => {
+  const { Vals, Id } = payload
 
+  const { data, error }: IApiResponse<ValidateSameClients> = await useApi(
+    'ClientsUtils.CheckSameInnClients',
+    {
+      body: {
+        OperationCode: 'ClientsUtils.CheckSameInnClients',
+        ObjectId: Id,
+        Vals,
+      },
+    },
+  )
+
+  return { data, error }
+}
+export const CheckSamePhoneClients = async (phone) => {
+  const { data, error }: IApiResponse<string[]> = await useApi(
+    'ClientsUtils.CheckSamePhoneClients',
+    {
+      body: {
+        OperationCode: 'ClientsUtils.CheckSamePhoneClients',
+        Vals: {
+          Phone: JSON.stringify(phone),
+        },
+      },
+    },
+  )
+
+  return { data, error }
+}
+export const ClientCheckSamePassportClients = async (payload: {
+  Id: number
+  Vals: Record<string, any>
+}) => {
+  const { Vals, Id } = payload
+
+  const { data, error }: IApiResponse<ValidateSameClients> = await useApi(
+    'ClientsUtils.CheckSamePassportClients',
+    {
+      body: {
+        OperationCode: 'ClientsUtils.CheckSamePassportClients',
+        ObjectId: Id,
+        Vals,
+      },
+    },
+  )
+
+  return { data, error }
+}
 export const ClientUpdateAdditionalDataValidate = async (payload: {
   ObjectId: number
   Vals: unknown
@@ -80,7 +196,7 @@ export const ClientUpdate = async (payload: { ObjectId: number; Vals: Record<str
 
   const { data, error }: IApiResponse<IClientUpdateResult> = await useApi('Clients.SaveClient', {
     body: {
-      OperationCode: 'SaveClient',
+      OperationCode: 'Clients.SaveClient',
       ObjectId,
       Vals,
     },

@@ -5,13 +5,11 @@
     :additional-class="['ui-date-simple-input']"
     :theme="inputTheme"
     :label="label"
-    :error="isValid === false ? 'Формат даты указан не корректно' : false"
+    :error="errorMessage"
     :disabled="disabled"
     :readable-disable-mode="readableDisableMode"
-    icon="calendar"
     :is-required="isRequired"
     @update:model-value="onInput"
-    @on-change="onChange"
     @on-enter="onEnter"
     :mask="'##.##.####'"
   />
@@ -28,7 +26,11 @@ const props = defineProps<{
   disabled?: boolean
   readableDisableMode?: boolean
   isRequired?: boolean
+  maxDate?: string | Date
+  minDate?: string | Date
 }>()
+const errorMessage = ref<string | boolean>(false)
+
 const emits = defineEmits(['on-change', 'on-enter', 'on-valid', 'valid-state', 'invalid-state'])
 const localValue = ref(props.value || '')
 const isValid = ref<boolean | undefined>()
@@ -41,7 +43,26 @@ const checkValid = (value: string) => {
     emits('valid-state', true)
   } else {
     isValid.value = momentValue.isValid() && momentValue.year() > 1925
+    if (!isValid.value) {
+      errorMessage.value = 'Формат даты указан не корректно'
+    } else {
+      if (props.minDate) {
+        const minMoment = moment(props.minDate).startOf('day')
+        if (minMoment.isValid() && momentValue.isBefore(minMoment)) {
+          isValid.value = false
+          errorMessage.value = `Дата не может быть меньше ${minMoment.format('DD.MM.YYYY')}`
+        }
+      }
+      if (props.maxDate) {
+        const maxMoment = moment(props.maxDate).endOf('day')
+        if (maxMoment.isValid() && momentValue.isAfter(maxMoment)) {
+          isValid.value = false
+          errorMessage.value = `Дата не может быть больше ${maxMoment.format('DD.MM.YYYY')}`
+        }
+      }
+    }
     if (isValid.value) {
+      errorMessage.value = false
       emits('valid-state', value)
     } else {
       emits('invalid-state', value)
@@ -99,10 +120,8 @@ const inputTheme = computed(() => {
   return isValid.value ? 'success' : 'error'
 })
 
-
-
 const onChange = () => {
-  if (!isValid.value) return
+  // if (!isValid.value) return
 
   emits('on-change', localValue.value)
 }

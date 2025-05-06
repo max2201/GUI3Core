@@ -1,54 +1,70 @@
 <template>
-  <UiInput1
-    v-if="field.type === FilterFieldTypes.Text"
-    :label="fieldLabel"
-    :disabled="field.disabled"
-    :has-modified="valueHasModified"
-    highlight-not-empty
-    :type="field.id === 'txtComment' ? 'textarea' : 'text'"
-    :model-value="fieldValue"
-    :error="field.error?.reason"
-    @update:model-value="handleFieldChange($event, field)"
-  />
+  <div class="ui-object-main-field" :class="wrapperClass">
+    <UiInput1
+      v-if="field.type === FilterFieldTypes.Text"
+      :label="title || fieldLabel"
+      :disabled="field.disabled"
+      :has-modified="valueHasModified"
+      highlight-not-empty
+      :type="field.id === 'txtComment' ? 'textarea' : 'text'"
+      :model-value="fieldValue"
+      :error="field.error?.reason"
+      :validator="validator"
+      v-bind="$attrs"
+      @update:model-value="handleFieldChange($event, field)"
+    />
 
-  <UiDatepicker
-    v-else-if="field.type === FilterFieldTypes.Date"
-    :label="fieldLabel"
-    :model-value="fieldValue"
-    :placeholder="field.title"
-    :disabled="field.disabled"
-    :has-modified="valueHasModified"
-    clearable
-    @update:model-value="(v) => handleFieldChange(v, field)"
-  />
+    <UiDatepicker
+      v-else-if="field.type === FilterFieldTypes.Date"
+      :label="title || fieldLabel"
+      :model-value="fieldValue"
+      :placeholder="field.title"
+      :disabled="field.disabled"
+      :has-modified="valueHasModified"
+      clearable
+      v-bind="$attrs"
+      @update:model-value="handleFieldChange($event, field)"
+    />
 
-  <UiCheckbox1
-    v-else-if="field.type === FilterFieldTypes.CheckBox"
-    :label="fieldLabel"
-    :model-value="fieldValue"
-    @update:model-value="handleFieldChange(fieldValue, field)"
-    :disabled="field.disabled"
-  >
-    {{ field.title }}
-  </UiCheckbox1>
+    <UiCheckbox1
+      v-else-if="field.type === FilterFieldTypes.CheckBox && !isSwitch"
+      :label="title || fieldLabel"
+      :model-value="fieldValue"
+      @update:model-value="handleFieldChange(fieldValue, field)"
+      :disabled="field.disabled"
+      v-bind="$attrs"
+    >
+      {{ field.title }}
+    </UiCheckbox1>
+    <UiSwitch1
+      v-else-if="field.type === FilterFieldTypes.CheckBox && isSwitch"
+      :label="title || fieldLabel"
+      :model-value="fieldValue"
+      @update:model-value="handleFieldChange(fieldValue, field)"
+      :disabled="field.disabled"
+      v-bind="$attrs"
+    >
+      {{ field.title }}
+    </UiSwitch1>
+    <UiSelect1
+      v-else-if="isSelectLike"
+      :select-label="title || fieldLabel"
+      :disabled="field.disabled || !fieldOptions.length"
+      :model-value="fieldValue"
+      :options="fieldOptions"
+      :multiple="isMultipleSelect"
+      :error="field?.error?.reason"
+      @update:model-value="handleFieldChange($event, field)"
+      :searchable="taggable || searchable"
+      :taggable="taggable"
+      :create-option="(val) => ({ label: val, value: val })"
+      v-bind="$attrs"
+    />
 
-  <UiSelect1
-    v-else-if="isSelectLike"
-    :select-label="fieldLabel"
-    :disabled="field.disabled || !fieldOptions.length"
-    :model-value="fieldValue"
-    :options="fieldOptions"
-    :multiple="isMultipleSelect"
-    :error="field.error?.reason"
-    @update:model-value="handleFieldChange($event, field)"
-    :searchable="taggable || searchable"
-    :taggable="taggable"
-    :create-option="(val) => ({ label: val, value: val })"
-  />
-
-  <template v-else>
-    <span class="text-xs">{{ field }}</span>
-  </template>
+    <template v-else>
+      <span class="text-xs">{{ field }}</span>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -62,15 +78,24 @@ import {
   apiSelectValuesToInterface,
 } from '@/core/api/mapping'
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 const props = defineProps<{
   field: IModuleFilterField
   parentField?: IModuleFilterField
+  title?: string
   indexOfSubfield?: number
   isPrimaryField?: boolean
   isSecondaryField?: boolean
   error?: boolean
   searchable?: boolean
   taggable?: boolean
+  titleValue?: boolean
+  isSwitch?: boolean
+  validator?: string
+  wrapperClass?: string
 }>()
 const emit = defineEmits(['on-change'])
 
@@ -153,12 +178,10 @@ watch(
   () => props.field,
   (fieldData) => {
     if (
-      fieldData.type === FilterFieldTypes.FilialsCheckedList ||
-      fieldData.type === FilterFieldTypes.CompanyList ||
-      fieldData.type === FilterFieldTypes.FilialsList ||
-      fieldData.id === 'ddlRequestType' ||
-      fieldData.id === 'ddlWorkingState' ||
-      fieldData.id === 'ddlCanceledText'
+      fieldData?.id === 'ddlRequestType' ||
+      fieldData?.id === 'ddlWorkingState' ||
+      fieldData?.id === 'ddlCanceledText' ||
+      props.titleValue
     ) {
       if (_.isString(fieldData.currentVal) || _.isNumber(fieldData.currentVal)) {
         const value = fieldOptions.value.filter((option) => option.value === fieldData.currentVal)
@@ -170,6 +193,7 @@ watch(
           setFieldValue(
             fieldOptions.value.filter((option) => option.value === fieldData.defaultVal),
           )
+          localValue.value = fieldData.defaultVal as string
         }
         return
       }
@@ -177,18 +201,20 @@ watch(
       setFieldValue(fieldData.currentVal)
       return
     }
-
-    if (isSelectLike.value && false) {
-      // const valueArray = fieldData.currentVal.split(',')
+    if (isSelectLike.value) {
+      const valueArray = fieldData.currentVal.split('|')
       setFieldValue(fieldOptions.value.filter((option) => valueArray.includes(option.value)))
       return
     }
-
     if (fieldData.type === FilterFieldTypes.CheckBox) {
-      setFieldValue(fieldData.currentVal === '1')
+      setFieldValue(fieldData.currentVal === 'True')
       return
     }
 
+    if (!fieldData.currentVal && fieldData.defaultVal) {
+      setFieldValue(fieldData.defaultVal)
+      return
+    }
     setFieldValue(fieldData.currentVal as any)
   },
   {
@@ -202,28 +228,32 @@ const valueHasModified = computed(() => {
 })
 
 const handleFieldChange = (value: any, field: IModuleFilterField) => {
-  field.error = undefined
-  if (field.type === FilterFieldTypes.CheckedList || field.type === FilterFieldTypes.Flags) {
-    let localValue = cloneDeep(toRaw(value).map((item) => item.value))
+  field!.error = undefined
+  if (
+    field.type === FilterFieldTypes.CheckedList ||
+    field.type === FilterFieldTypes.Flags ||
+    field.type === FilterFieldTypes.FilialsCheckedList
+  ) {
+    let currentValue = cloneDeep(toRaw(value).map((item) => item.value))
 
     const previousValue = cloneDeep(toRaw(fieldValue.value).map((value) => toRaw(value)))
-    const indexOfMinusValue = localValue.findIndex((v) => v === '-1')
+    const indexOfMinusValue = currentValue.findIndex((v) => v === '-1')
 
     if (!previousValue.find((v) => v.value === '-1') && indexOfMinusValue !== -1) {
       // Если юзер поставил -1, то надо оставить только его
-      localValue = [toRaw(fieldOptions.value[0].value)]
+      currentValue = [toRaw(fieldOptions.value[0].value)]
 
       return
     }
 
-    if (indexOfMinusValue !== -1 && localValue.length > 1) {
+    if (indexOfMinusValue !== -1 && currentValue.length > 1) {
       // Так как мы проверили что ранее был -1, то теперь его надо убрать ибо юзер выбрал какой другой вариант
-      localValue.splice(indexOfMinusValue, 1)
-    } else if (indexOfMinusValue === -1 && !localValue.length) {
+      currentValue.splice(indexOfMinusValue, 1)
+    } else if (indexOfMinusValue === -1 && !currentValue.length) {
       // Если юзер все убрал, то надо поставить неважно
-      localValue = [toRaw(fieldOptions.value[0].value)]
+      currentValue = [toRaw(fieldOptions.value[0].value)]
     }
-    localValue.value = localValue.join(',')
+    localValue.value = currentValue.join('|')
 
     return
   }
@@ -240,14 +270,8 @@ const handleFieldChange = (value: any, field: IModuleFilterField) => {
     return
   }
 
-  if (field.type === FilterFieldTypes.Date) {
-    localValue.value = value.value
-
-    return
-  }
-
   if (field.type === FilterFieldTypes.CheckBox) {
-    localValue.value = props.field.currentVal === '1' ? '0' : '1'
+    localValue.value = value ? 'False' : 'True'
 
     return
   }

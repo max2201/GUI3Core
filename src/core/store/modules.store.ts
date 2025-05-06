@@ -16,6 +16,8 @@ import {
   AddModuleToFavorites,
   RemoveModuleFromFavorite,
   apiGroupOperations,
+  SetFavoriteModuleToTableWidget,
+  DelFavoriteModuleFromTableWidget,
 } from '@/core/api/modules.api'
 import type {
   IModuleGroupDto,
@@ -374,6 +376,7 @@ export const useModuleStore = defineStore(
       moduleDatasetMeta.value.sort.id = null
       moduleDatasetMeta.value.sort.dir = 'DESC'
       moduleGroupActions.value = []
+      moduleFilter.value = undefined
     }
 
     const resetFilter = () => {
@@ -526,8 +529,28 @@ export const useModuleStore = defineStore(
       dashboardStore.updateFavoriteModules(data || [])
     }
 
-    const removeModuleFromFavorite = async (ViewId?: string) => {
-      const { data } = await RemoveModuleFromFavorite(unref(currentModuleId), ViewId)
+    const removeModuleFromFavorite = async (ViewId?: string, ModuleId?: string) => {
+      const { data } = await RemoveModuleFromFavorite(
+        ModuleId ? ModuleId : unref(currentModuleId),
+        ViewId,
+      )
+
+      dashboardStore.updateFavoriteModules(data || [])
+    }
+    const setFavoriteModuleToTableWidget = async (ViewId?: string, ModuleId?: string) => {
+      const { data } = await SetFavoriteModuleToTableWidget(
+        ModuleId ? ModuleId : unref(currentModuleId),
+        ViewId,
+      )
+
+      dashboardStore.updateFavoriteModules(data || [])
+    }
+
+    const delFavoriteModuleFromTableWidget = async (ViewId?: string, ModuleId?: string) => {
+      const { data } = await DelFavoriteModuleFromTableWidget(
+        ModuleId ? ModuleId : unref(currentModuleId),
+        ViewId,
+      )
 
       dashboardStore.updateFavoriteModules(data || [])
     }
@@ -575,6 +598,9 @@ export const useModuleStore = defineStore(
       setSavedFilter,
       deleteSavedFilter,
       toggleFavoriteModule,
+      removeModuleFromFavorite,
+      setFavoriteModuleToTableWidget,
+      delFavoriteModuleFromTableWidget,
       getFilterDTO,
     }
   },

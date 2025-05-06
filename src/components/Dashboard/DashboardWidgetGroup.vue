@@ -9,25 +9,25 @@
 
       <div class="dashboard-widget-group__actions">
         <slot name="actions">
-        <UiButton1
-          title="Редактировать"
-          v-if="allowEdit"
-          variant="text"
-          theme="transparent"
-          :icon-size="20"
-          icon-left="settings"
-          @click="openSettings"
-        ></UiButton1>
-        <UiButton1
-          title="Обновить данные"
-          :loading="loading"
-          variant="text"
-          theme="transparent"
-          :icon-size="20"
-          icon-left="rotate-cw"
-          @click="reloadGroupData"
-        ></UiButton1>
-      </slot>
+          <UiButton1
+            title="Редактировать"
+            v-if="allowEdit"
+            variant="text"
+            theme="transparent"
+            :icon-size="20"
+            icon-left="settings"
+            @click="openSettings"
+          ></UiButton1>
+          <UiButton1
+            title="Обновить данные"
+            :loading="loading"
+            variant="text"
+            theme="transparent"
+            :icon-size="20"
+            icon-left="rotate-cw"
+            @click="reloadGroupData"
+          ></UiButton1>
+        </slot>
       </div>
     </div>
     <div v-if="$slots.default" class="dashboard-widget-group__widgets">
@@ -56,15 +56,16 @@ const openSettings = () => {
 .dashboard-widget-group {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-background);
+  background-color: var(--component-background);
   border-radius: 8px;
-  padding: 20px;
-  gap: 16px;
-  height: min-content;
-  overflow: hidden;
+  height: inherit;
+  overflow: auto;
 
   &__head {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--color-bg-darken);
     display: flex;
+    align-items: center;
     gap: 12px;
     justify-content: space-between;
     font-family: Inter;
@@ -88,6 +89,8 @@ const openSettings = () => {
 
   &__actions {
     display: flex;
+    flex: 1;
+    justify-content: flex-end;
     gap: 8px;
   }
 
@@ -96,6 +99,8 @@ const openSettings = () => {
     flex-direction: column;
     gap: 12px;
     overflow: auto;
+    padding: 12px 0 16px;
+    flex: 1;
   }
 }
 </style>

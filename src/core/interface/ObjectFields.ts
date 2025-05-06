@@ -13,4 +13,6 @@ export interface ObjectField {
   currentVal: string
   defaultVal: string
   subItems: ObjectField[]
+  editing?: boolean
+  initialValue?: any
 }

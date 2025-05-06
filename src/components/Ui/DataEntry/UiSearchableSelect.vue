@@ -40,7 +40,7 @@
 
         <template #option="item">
           <div class="searchable-select__option">
-            <UiCheckbox1 v-if="multiple" :checked="false" />
+            <UiCheckbox v-if="multiple" :checked="false" />
             {{ item[optionLabelKey] || item.label || item }}
           </div>
         </template>
@@ -72,7 +72,7 @@ import { nanoid } from 'nanoid'
 import VueSelect from 'vue-select'
 import type { ISelect } from '@/core/interface/Ui'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 
 defineComponent(VueSelect)
 
@@ -269,7 +269,6 @@ const onSearch = (value: string) => {
     bottom: 5px;
     padding-left: 5px;
     background: white;
-    cursor: pointer;
   }
 }
 </style>

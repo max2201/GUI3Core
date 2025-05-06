@@ -9,7 +9,7 @@
       :icon-left="button.iconLeft"
       :size="size ?? 'medium-small'"
       :additonal-classes="selectedButton === button.id ? ['active'] : []"
-      :style="{ width: 100 / buttons.length + '%' }"
+      style="min-width: min-content; flex: 1"
       @click="onClickButton(button)"
     >
       {{ button.label }}

@@ -58,8 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatPhoneNumber } from '@/core/utils/Formaters'
-
 const props = defineProps<{
   callInfo
   compact?: boolean

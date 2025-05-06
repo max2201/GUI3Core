@@ -1,3 +1,6 @@
+import { WidgetTypes } from '@/core/constants/DashboardWidgetTypes'
+import type { IObjectTable } from '@/core/interface/Object'
+
 export interface DashboardFavoritiesModuleItem {
   id: string
   groupId: string
@@ -7,10 +10,12 @@ export interface DashboardFavoritiesModuleItem {
   backgroundColor: string
   icon: string
   iconColor: string
+  hasTableWidget: boolean
+  hasTableData: boolean
 }
 
 export interface MetricWidgetDto {
-  DataLoaded: boolean
+  DataLoaded?: boolean
   /// <summary>
   /// Код виджета из списка виджетов группы
   /// </summary>
@@ -52,13 +57,54 @@ export interface MetricWidgetDto {
   /// </summary>
   AppliableGrouping: any
   /// <summary>
-  /// Нужно для win-версии, чтобы открывать настройки
+  /// тип виджета
+  /// </summary>
+  WidgetType: WidgetTypes
+  /// <summary>
+  /// Нужно для win-версий, чтобы открывать настройки
   /// </summary>
   WidgetInfoFull: any
+  PieValues?: number[]
+  PieLabels?: string[]
+  LineChart?: {
+    categories: string[]
+    categoriesPrev?: string[]
+    datasets: {
+      name: string
+      data: number[]
+    }[]
+  }
+  TableData: IObjectTable
 }
 export interface MetricGroupDto {
   Id: number
   Name: string
   Widgets: MetricWidgetDto[]
   AllowEdit: boolean
+}
+
+export interface MetricEditDto {
+  WidgetGroupId: string
+  WidgetGuid: string
+  tbWidgetName: string
+  ddlMetricType: string
+  WidgetType: WidgetTypes
+  infoWorker: string
+  ddlExecutorType: string
+  lstUsers: string
+  ctrlDictsRoles: string
+  ddlPeriodType: string
+  ddlPeriodDirectionType: string
+  ctrlPeriodShiftSize: string
+  ddlAggType: string
+  ddlAggColumn?: string
+  ddlGroupings?: string
+  ddlDateTimeParam: string
+  txtSqlFunction?: string
+  chbCompareWithPreviousPeriod: string
+  ddlCompareSettings: string
+  chbBorders: string
+  ctrlMinMediumValue: string
+  ctrlMaxMediumValue: string
+  Filter?: string
 }

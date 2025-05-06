@@ -65,11 +65,13 @@ export const useAuthStore = defineStore(
       localStorage.removeItem(LOCALSTORAGE.Modules)
       localStorage.removeItem(LOCALSTORAGE.Configuration)
       localStorage.removeItem(LOCALSTORAGE.FavoritesModules)
+      localStorage.removeItem(LOCALSTORAGE.DashboardLayout)
 
       await moduleStore.init()
       dashboardStore.init({
-        FavoritesModules: data.UserProfile?.AdditionalSettings?.FavoritesModules || [],
+        FavoritesModules: data.UserProfile?.AdditionalSettings?.FavoritesModulesNew || [],
         FavoritesObjects: data.UserProfile?.AdditionalSettings?.FavoritesObjects || [],
+        DashboardLayout: data.UserProfile?.AdditionalSettings?.LayoutItems || null,
       })
 
       return { data, error }

@@ -111,8 +111,9 @@ import { createObjectInstance } from '@/core/services/createObjectInstance'
 
 import { nanoid } from 'nanoid'
 import type { ValidateResultSimple } from '@/core/interface/ValidateResult'
+import { FieldType } from '@/core/constants/FieldType'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 const sharedModals = useSharedModalsStore()
 
 // Основная логика
@@ -272,6 +273,7 @@ const formatAllStepsFields = () => {
 
   if (Steps) {
     Steps.forEach((step) => {
+      //delite key step.editable
       delete step.editable
       step.Fields.forEach((_, index) => {
         const field = step.Fields[index]
@@ -293,10 +295,14 @@ const formatAllStepsFields = () => {
           field.Value = JSON.stringify(valuesObj)
           return
         }
-        field.Value = object.stepsState[field.Code]
+        if (field.FieldType?.startsWith(FieldType.Complex)) {
+          field.ComplexValue = object.stepsState[field.Code]
+        } else field.Value = object.stepsState[field.Code]
+        return
       })
     })
   }
+  console.log(Steps)
   return JSON.stringify(Steps)
 }
 const onSaveForm = async () => {
@@ -475,7 +481,7 @@ watch(
   width: 75%;
   overflow-y: auto;
   background: white;
-  height: calc(100% - 89px);
+  height: calc(100%);
   display: grid;
   grid-auto-rows: 42px 70px auto 1fr 66px;
   /* justify-content: space-between; */

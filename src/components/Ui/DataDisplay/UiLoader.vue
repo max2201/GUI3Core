@@ -103,7 +103,9 @@ const props = withDefaults(
 
     &._not-transparent {
       background: white;
+      z-index: 999999999999999;
     }
   }
+  overscroll-behavior-y: none;
 }
 </style>

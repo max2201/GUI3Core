@@ -2,14 +2,27 @@
   <UiInput1
     v-if="field.type === FilterFieldTypes.Text"
     :label="(!parentField && fieldLabel) || undefined"
-    :disabled="parentField ? parentField?.disabled : field.disabled"
+    :disabled="
+      disabled || parentField?.disabled || field.disabled || (sourceField && !keyIsInSourceSubitems)
+    "
     :has-modified="valueHasModified"
     :placeholder="field.title"
     highlight-not-empty
     :model-value="fieldValue"
     @update:model-value="handleFieldChange($event, field)"
+    :mask="
+      mask
+        ? mask
+        : inputType === 'number'
+          ? {
+              mask: 'D',
+              tokens: {
+                D: { pattern: /[0-9,.-]/, multiple: true },
+              },
+            }
+          : ''
+    "
   />
-
   <UiDatepicker
     v-else-if="!field.subItems && field.type === FilterFieldTypes.Date"
     :label="(!parentField && fieldLabel) || undefined"
@@ -17,35 +30,34 @@
     :placeholder="field.title"
     :has-modified="valueHasModified"
     clearable
-    :disabled="parentField ? parentField?.disabled : field.disabled"
+    :disabled="disabled || parentField ? parentField?.disabled : field.disabled"
     @update:model-value="handleFieldChange($event, field)"
-    :max-date="
-      (parentField?.subItems?.length === 2 &&
-        indexOfSubfield === 0 &&
-        parentField.subItems[1].currentVal) ||
-      null
-    "
-    :min-date="
-      (parentField?.subItems?.length === 2 &&
-        indexOfSubfield === 1 &&
-        parentField.subItems[0].currentVal) ||
-      null
-    "
   />
 
-  <UiCheckbox1
-    v-else-if="field.type === FilterFieldTypes.CheckBox"
-    :model-value="fieldValue"
-    @update:model-value="handleFieldChange(fieldValue, field)"
-    :disabled="parentField ? parentField?.disabled : field.disabled"
-  >
-    {{ field.title }}
-  </UiCheckbox1>
+  <template v-else-if="field.type === FilterFieldTypes.CheckBox">
+    <div>
+      <UiSwitch1
+        :disabled="disabled || parentField?.disabled || field.disabled"
+        v-if="checkboxIsSwitch"
+        :model-value="fieldValue"
+        @update:model-value="handleFieldChange(fieldValue, field)"
+        :label="field.title"
+      />
+      <UiCheckbox1
+        v-else
+        :model-value="fieldValue"
+        @update:model-value="handleFieldChange(fieldValue, field)"
+        :disabled="disabled || parentField?.disabled || field.disabled"
+      >
+        {{ field.title }}
+      </UiCheckbox1>
+    </div>
+  </template>
 
   <UiSelect1
     v-else-if="isSelectLike"
     :select-label="(!parentField && fieldLabel) || undefined"
-    :disabled="parentField ? parentField?.disabled : field.disabled"
+    :disabled="disabled || parentField?.disabled || field.disabled || !fieldOptions.length"
     :model-value="fieldValue"
     :options="fieldOptions"
     :multiple="isMultipleSelect"
@@ -65,7 +77,8 @@
         :style="{ order: index, flex: subfield.type === FilterFieldTypes.CheckBox ? 0 : 1 }"
       >
         <FilterField
-          @on-change="onChangeFilterSubValue(field.id, index, isPrimaryField, $event)"
+          :disabled="disabled || field.disabled || subfield.disabled"
+          @on-change="onChangeFilterSubValue(field, index, $event)"
           :field="subfield"
           :parentField="field"
           :indexOfSubfield="index"
@@ -95,15 +108,87 @@ import {
   isMultipleSelectType,
   apiSelectValuesToInterface,
 } from '@/core/api/mapping'
+import { FieldType } from '@/core/constants/FieldType'
+import type { MaskInputOptions } from 'maska'
+import moment from 'moment/moment'
+import { DefaultDateFormat } from '@/core/constants/DefaultDatetimeFormats'
+import { format } from 'date-fns'
 
 const props = defineProps<{
+  mask?: string | MaskInputOptions
   field: IModuleFilterField
+  sourceField?: IModuleFilterField
   parentField?: IModuleFilterField
   indexOfSubfield?: number
   isPrimaryField?: boolean
   isSecondaryField?: boolean
+  checkboxIsSwitch?: boolean
+  disabled?: boolean
+  inputType?: string
 }>()
-const emit = defineEmits(['on-change'])
+const emit = defineEmits(['on-change', 'on-change-subitems'])
+
+interface OptionValue {
+  Title: string
+  Value: string
+  Key: string
+}
+
+interface ExtendedISelectItem {
+  label: string
+  value: string
+  subitemKey: string
+}
+
+function createOptionsFromValues(values: OptionValue[] = []): ExtendedISelectItem[] {
+  return values?.map((value) => ({
+    label: value.Title || ' ',
+    value: value.Value,
+    subitemKey: value.Key,
+  }))
+}
+
+function createOptionsFromSubItems(
+  subItems: Array<{
+    id: string
+    values: Array<{ Title: string; Value: string; Key: string }>
+  }> = [],
+  subItemId?: string,
+) {
+  if (!subItemId) return []
+  const found = subItems.find((s) => s.id === subItemId)
+  if (!found) return []
+  return createOptionsFromValues(found.values)
+}
+
+const parentOptions = computed(() => {
+  return createOptionsFromValues(props.sourceField.values)
+})
+
+const keyIsInSourceSubitems = computed(() => {
+  if (props.sourceField?.currentVal && props.sourceField?.values) {
+    const sourceValue = parentOptions.value.find(
+      (option) => option.value === props.sourceField.currentVal,
+    )
+
+    return props.field?.subItems?.map((item) => item.id).includes(sourceValue?.subitemKey)
+  }
+  return false
+})
+const fieldOptions = computed(() => {
+  if (props.sourceField?.currentVal && props.sourceField?.values) {
+    const value = parentOptions.value.filter(
+      (option) => option.value === props.sourceField.currentVal,
+    )
+    const options =
+      createOptionsFromSubItems(props.field.subItems || [], value[0]?.subitemKey) || []
+    setFieldValue(options[0])
+    return options
+  } else {
+    // return createOptionsFromValues(props.field.values)
+    return apiSelectValuesToInterface(props.field.values)
+  }
+})
 
 const isSelectLike = computed(() => {
   return isSelectLikeType(props.field.type)
@@ -113,9 +198,9 @@ const isMultipleSelect = computed(() => {
   return isMultipleSelectType(props.field.type)
 })
 
-const fieldOptions = computed(() => {
-  return apiSelectValuesToInterface(props.field.values)
-})
+// const fieldOptions = computed(() => {
+//   return apiSelectValuesToInterface(props.field.values)
+// })
 
 const fieldLabel = computed(() => {
   if (props.field.type === FilterFieldTypes.FilialsList) {
@@ -152,8 +237,10 @@ watch(
     }
 
     if (isSelectLike.value) {
-      const valueArray = fieldData.currentVal.split(',')
-      setFieldValue(fieldOptions.value.filter((option) => valueArray.includes(option.value)))
+      const valueArray = fieldData.currentVal?.split(',') || []
+      setFieldValue(
+        fieldOptions.value.filter((option) => valueArray.includes(String(option.value))),
+      )
       return
     }
 
@@ -211,7 +298,11 @@ const handleFieldChange = (value: any, field: IModuleFilterField) => {
     return
   }
 
-  if (field.type === FilterFieldTypes.CompanyList || field.type === FilterFieldTypes.FilialsList) {
+  if (
+    field.type === FilterFieldTypes.CompanyList ||
+    field.type === FilterFieldTypes.FilialsList ||
+    field.type === FilterFieldTypes.UserList
+  ) {
     emit('on-change', value.value)
     return
   }
@@ -234,20 +325,10 @@ const handleFieldChange = (value: any, field: IModuleFilterField) => {
   emit('on-change', value)
 }
 
-const moduleStore = useModuleStore()
-const { moduleFilter } = storeToRefs(moduleStore)
-
-const onChangeFilterSubValue = (
-  filterKey: string,
-  subitemKey: number,
-  isPrimary: boolean,
-  value: any,
-) => {
-  moduleFilter.value[isPrimary ? 'PrimaryFields' : 'SecondaryFields'][
-    moduleFilter.value[isPrimary ? 'PrimaryFields' : 'SecondaryFields'].findIndex(
-      (item) => item.id === filterKey,
-    )
-  ].subItems[subitemKey].currentVal = value
+const onChangeFilterSubValue = (field: IModuleFilterField, subitemKey: number, value: any) => {
+  const result = cloneDeep(field)
+  result.subItems![subitemKey].currentVal = value
+  emit('on-change-subitems', result)
 }
 </script>
 <style lang="scss" scoped>

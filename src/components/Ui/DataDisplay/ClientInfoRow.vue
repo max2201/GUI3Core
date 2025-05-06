@@ -8,7 +8,7 @@
     />
 
     <div class="client-info-row__phones">
-      <PhonesPanel :phones="phones || []" show-add show-call show-messenger show-messenger-2 />
+      <PhonesPanel :phones="phones" show-add show-call show-messenger show-messenger-2 />
     </div>
 
     <div class="client-info-row__activities">
@@ -21,11 +21,12 @@
 <script setup lang="ts">
 import { BaseObjectType } from '@/core/constants/BaseObjectType'
 import type { IPhoneCell } from '@/core/interface/Object'
+import type { IPhones } from '@/core/interface/Client'
 
 const props = defineProps<{
   clientId: number
   name: string
-  phones: IPhoneCell[]
+  phones?: IPhones
   lastActive: string
 }>()
 

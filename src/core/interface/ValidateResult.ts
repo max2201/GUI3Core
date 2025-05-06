@@ -1,4 +1,5 @@
 import type { ValidErrorCodes } from '@/core/constants/ValidErrorCodes'
+import type { IObjectTable } from '@/core/interface/Object'
 
 enum FieldValidStates {
   Unknown = -1,
@@ -22,6 +23,10 @@ export interface ValidateResult {
   FailCount: number
   WarningCount: number
   ValidCount: number
+}
+export interface ValidateSameClients {
+  SameClientsExist: boolean
+  ClientsTable: IObjectTable
 }
 export interface ValidateResultSimple {
   ErrorFieldCodes: Array<string>

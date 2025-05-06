@@ -22,8 +22,11 @@ export interface IGetObjectDtoRequest extends IApiUseModuleParam {
   CustomViewName?: string
 }
 
-export const GetObjectDto = async ({ ModuleId, ...req }: IGetObjectDtoRequest) => {
-  const { data, error }: IApiResponse<IObjectDto> = await useApi('Objects.GetObjectDto', {
+export const GetObjectDto = async <T>({
+  ModuleId,
+  ...req
+}: IGetObjectDtoRequest): Promise<IApiResponse<T>> => {
+  const { data, error }: IApiResponse<T> = await useApi('Objects.GetObjectDto', {
     body: req,
     moduleId: ModuleId,
   })

@@ -104,7 +104,7 @@ const props = defineProps<{
     display: flex;
     align-items: center;
 
-    
+
   }
 
   &__badges {

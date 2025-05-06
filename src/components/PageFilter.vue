@@ -71,6 +71,8 @@ import { onClickOutside } from '@vueuse/core'
 import type { ISelect } from '@/core/interface/Ui'
 import type { IModuleFilter } from '@/core/interface/Auth'
 import type { TableState } from '@/composables/use-table-state'
+import { findEventParentWithClass } from '@/core/utils/findEventParentWithClass'
+import { StopClickOutsideClasses } from '@/core/constants/StopClickOutsideClasses'
 
 const moduleStore = useModuleStore()
 const ui = useUiStore()
@@ -89,7 +91,12 @@ const props = defineProps<{
 }>()
 
 const filterRef = ref(null)
-onClickOutside(filterRef, () => {
+onClickOutside(filterRef, (event): void => {
+  const foundParentWithStopClass = findEventParentWithClass(event, StopClickOutsideClasses.filter)
+
+  if (foundParentWithStopClass) {
+    return
+  }
   ui.setFilter(false)
 })
 

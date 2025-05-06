@@ -2,7 +2,9 @@
   <UiFieldInputWrapper :label="label" :is-required="isRequired">
     <div class="ui-address-input">
       <UiInput1
+        :id="id"
         v-model="inputValue"
+        ref="inputRef"
         :additionalClass="['ui-address-input__input']"
         :disabled="disabled || isLoadingVerifyResult"
         @on-change="onChangeInputValue"
@@ -22,11 +24,11 @@
         :height="32"
         :additionalClass="['ui-address-input__button-details']"
         :disabled="isLoadingVerifyResult"
-        :success-outlined="recognationResult === RecognitionResult.Success"
+        :success-outlined="recognitionResult === RecognitionResult.Success"
         :warning-outlined="
-          [RecognitionResult.Fail, RecognitionResult.Warning].includes(recognationResult)
+          [RecognitionResult.Fail, RecognitionResult.Warning].includes(recognitionResult)
         "
-        :unexpected-outlined="recognationResult === RecognitionResult.Manual"
+        :unexpected-outlined="recognitionResult === RecognitionResult.Manual"
         name="search"
         padding="6px"
         outlined
@@ -40,38 +42,23 @@
         :is-open="isOpenDetails"
         @close="onCloseDetails"
       >
-        <div
-          v-for="field in detailsFields"
-          :key="field.type"
-          class="ui-address-input-details__field"
-        >
-          <div class="ui-address-input-details__field__title">{{ field.title }}:</div>
-          <div
-            :class="[
-              'ui-address-input-details__field__value',
-              {
-                'ui-address-input-details__field__value_success':
-                  field.type === DetailsFields.ValidationStatusString &&
-                  value?.ValidationStatus === RecognitionResult.Success,
-                'ui-address-input-details__field__value_warning':
-                  field.type === DetailsFields.ValidationStatusString &&
-                  value?.ValidationStatus === RecognitionResult.Warning,
-              },
-            ]"
-          >
-            <span>
-              {{ detailsFieldValues[field.type] }}
-            </span>
-            <IconButton
-              v-if="field.type === DetailsFields.Geo && detailsFieldValues[field.type]"
-              :width="20"
-              :height="20"
-              :disabled="!value?.GeoLink"
-              name="search"
-              @click.stop="openGeo"
-            />
-          </div>
-        </div>
+        <PanelListGroup :group="{ Fields: detailsFields, HideTitle: true }">
+          <template #fields="{ fields }">
+            <SimpleViewField v-for="field in fields" :key="field.type" :field="field">
+              <template #action v-if="field.type === DetailsFields.Geo">
+                <UiButton1
+                  v-if="value?.GeoLink"
+                  variant="text"
+                  @click="openGeo"
+                  theme="transparent"
+                  icon-left="arrow-circle-right"
+                  :icon-size="20"
+                  title="Открыть на карте"
+                />
+              </template>
+            </SimpleViewField>
+          </template>
+        </PanelListGroup>
       </UiFieldDetialsModal>
     </div>
   </UiFieldInputWrapper>
@@ -85,6 +72,9 @@ import { RecognitionResult } from '@/core/constants/RecognitionResult'
 import { FieldType } from '@/core/constants/FieldType'
 import type { IAddressValue } from '@/core/interface/Object'
 import { useFieldInputEvents } from '@/composables/use-object-field-dialog'
+import SimpleViewField from '@c/Ui/DataDisplay/Fields/SimpleViewField.vue'
+import { SystemColorsValue } from '@/core/constants/SystemColors'
+const inputRef = ref<HTMLInputElement | null>(null)
 
 const props = defineProps<{
   name: string
@@ -93,6 +83,7 @@ const props = defineProps<{
   value?: IAddressValue
   disabled?: boolean
   isRequired?: boolean
+  id?: string
 }>()
 
 const emits = defineEmits(['change', 'open-dialog', 'close-dialog'])
@@ -105,7 +96,7 @@ enum DetailsFields {
   Geo = 'Geo',
 }
 
-const recognationResult = ref(RecognitionResult.None)
+const recognitionResult = ref(RecognitionResult.None)
 
 const inputValue = ref('')
 const detailsFieldValues = ref({
@@ -130,7 +121,7 @@ watch(
   (newValue) => {
     if (!newValue) return
 
-    recognationResult.value = newValue.ValidationStatus || RecognitionResult.None
+    recognitionResult.value = newValue.ValidationStatus || RecognitionResult.None
     inputValue.value = props.value?.DisplayAddress || ''
 
     updateDetailsFieldsValues(newValue)
@@ -150,28 +141,61 @@ const onChangeInputValue = (value: string) => {
   })
 }
 
-const detailsFields = [
-  {
-    type: DetailsFields.ValidationStatusString,
-    title: 'Статус распознования',
-  },
-  {
-    type: DetailsFields.ObjectType,
-    title: 'Тип объекта',
-  },
-  {
-    type: DetailsFields.flat_area,
-    title: 'Площадь',
-  },
-  {
-    type: DetailsFields.flat_price,
-    title: 'Примерная стоимость',
-  },
-  {
-    type: DetailsFields.Geo,
-    title: 'Геолокация',
-  },
-]
+const detailsFields = computed(() => {
+  return [
+    {
+      type: DetailsFields.ValidationStatusString,
+      Title: 'Статус',
+      Value: detailsFieldValues.value[DetailsFields.ValidationStatusString] || '-',
+      SystemColor: (() => {
+        switch (recognitionResult.value) {
+          case RecognitionResult.Success:
+            return SystemColorsValue.Result
+          case RecognitionResult.Fail:
+            return SystemColorsValue.Danger
+          case RecognitionResult.Warning:
+            return SystemColorsValue.Warning
+          default:
+            return ''
+        }
+      })(),
+    },
+    {
+      type: DetailsFields.ObjectType,
+      Title: 'Тип объекта',
+      Value: detailsFieldValues.value[DetailsFields.ObjectType] || '-',
+      SystemColor:
+        detailsFieldValues.value[DetailsFields.ObjectType] === 'неизвестно'
+          ? SystemColorsValue.Blue
+          : '',
+    },
+    {
+      type: DetailsFields.flat_area,
+      Title: 'Площадь',
+      Value: detailsFieldValues.value[DetailsFields.flat_area] || '-',
+      SystemColor:
+        detailsFieldValues.value[DetailsFields.flat_area] === 'неизвестно'
+          ? SystemColorsValue.Blue
+          : '',
+    },
+    {
+      type: DetailsFields.flat_price,
+      Title: 'Примерная цена',
+      Value: detailsFieldValues.value[DetailsFields.flat_price] || '-',
+      SystemColor:
+        detailsFieldValues.value[DetailsFields.flat_price] === 'неизвестно'
+          ? SystemColorsValue.Blue
+          : '',
+    },
+    {
+      type: DetailsFields.Geo,
+      Title: 'Геолокация',
+      Value: detailsFieldValues.value[DetailsFields.Geo] || '-',
+      SystemColor:
+        detailsFieldValues.value[DetailsFields.Geo] === 'неизвестно' ? SystemColorsValue.Blue : '',
+    },
+  ]
+})
 
 const isLoadingVerifyResult = ref(false)
 
@@ -222,7 +246,19 @@ const showSavedDetails = (data: any) => {
   updateDetailsFieldsValues(data)
 }
 
-useFieldInputEvents(props.name, FieldType.Address, showSavedDetails)
+const onEventGlobalFocus = (id: string) => {
+  if (!props.id || id !== props.id) return
+
+  inputRef.value?.focus()
+}
+// Отписываемся от события при уничтожении компонента
+onBeforeUnmount(() => {
+  EventBus.off(GlobalEvents.FocusElement, onEventGlobalFocus)
+})
+// Подписываемся на событие при монтировании
+onMounted(() => {
+  EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -233,6 +269,7 @@ useFieldInputEvents(props.name, FieldType.Address, showSavedDetails)
 
   &__input {
     width: 100%;
+
     :deep(.ui-input__wrapper) {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
@@ -243,6 +280,7 @@ useFieldInputEvents(props.name, FieldType.Address, showSavedDetails)
     border-radius: 0;
     background-color: var(--color-background);
   }
+
   &__button-details {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -289,6 +327,7 @@ useFieldInputEvents(props.name, FieldType.Address, showSavedDetails)
 .ui-address-input-details__field__value_success {
   background-color: var(--component-green-background);
 }
+
 .ui-address-input-details__field__value_warning {
   background-color: var(--component-warning);
 }

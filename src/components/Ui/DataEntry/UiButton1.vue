@@ -87,6 +87,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  customTextColor: {
+    type: String,
+    default: '#fff',
+  },
   additonalClasses: {
     type: Array,
     default: () => [],
@@ -469,13 +473,16 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
             color: var(--input-hover-background-color) !important;
           }
         }
+
         &-outline {
           border-color: transparent;
+
           &:active,
           &:hover,
           &:focus-visible {
             border-color: #b6d5ed !important;
           }
+
           &:active,
           &:focus-visible {
             background: var(--component-blue-background);
@@ -572,6 +579,11 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
     }
 
     &-medium-small {
+      padding: 4px;
+
+      &#{$this}--variant-outline {
+        padding: 3px;
+      }
     }
 
     &-small {
@@ -606,7 +618,7 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
     &#{$this}--variant {
       &-fill {
         background-color: v-bind(customColor) !important;
-        color: var(--color-font-invert);
+        color: v-bind(customTextColor) !important;
 
         &:active,
         &:focus,
@@ -637,6 +649,7 @@ EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
   &--square {
     border-radius: 0;
   }
+
   &--full-width {
     width: 100%;
   }

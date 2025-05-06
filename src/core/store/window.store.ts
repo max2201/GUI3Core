@@ -1,5 +1,5 @@
 // import { AuthLogin, AuthRecover } from '@/core/api/auth.api'
-import type { IWindowTab } from '@/core/interface/Window'
+import type { IOpenWindowTabPayload, IWindowTab } from '@/core/interface/Window'
 import type { IObjectDto } from '../interface/Object'
 import { toRaw } from 'vue'
 import { cloneDeep } from 'lodash'
@@ -23,7 +23,9 @@ export const useWindowStore = defineStore(
     const objectByTabId = (objectId: number) => {
       return tabs.value.find((tab) => tab.id === objectId)?.object
     }
-
+    const objectEditByTabId = (objectId: number) => {
+      return tabs.value.find((tab) => tab.id === objectId)?.objectEdit
+    }
     const setContentTab = (tab: number) => {
       const activeTabIndex = tabs.value.findIndex((tab) => tab.id === activeTab.value.id)
 
@@ -39,7 +41,11 @@ export const useWindowStore = defineStore(
       isOpened.value = false
     }
 
-    const addTab = (tab: IOpenWindowTabPayload, shouldShow: boolean = true) => {
+    const addTab = (
+      tab: IOpenWindowTabPayload,
+      shouldShow: boolean = true,
+      shouldShowEdit: boolean = false,
+    ) => {
       const tabIndex = tabs.value.findIndex((tabInStore) => tabInStore.id === tab.id)
 
       // Если id == -1, генерируем новый, уникальный
@@ -57,7 +63,7 @@ export const useWindowStore = defineStore(
           {
             color: BaseObjectsColors.value[tab.type] || '',
             contentTab: 0,
-            editMode: false,
+            editMode: shouldShowEdit,
             ...tab,
           },
         ]
@@ -116,14 +122,25 @@ export const useWindowStore = defineStore(
       tab.data = cloneDeep(toRaw(data))
     }
 
-    const switchTabEditMode = (id: number, newObject: unknown) => {
+    const switchTabEditMode = (
+      id: number,
+      newObject: unknown,
+      editObject?: any,
+      customEditMode?: boolean,
+    ) => {
       const tab = tabs.value.find((tab: IWindowTab) => tab.id === id)
 
       if (!tab) return
 
-      tab.editMode = !tab.editMode
-      tab.object = newObject
-      tab.data = newObject.getCurrentState()
+      tab.editMode = customEditMode || !tab.editMode
+
+      if (editObject) {
+        tab.objectEdit = editObject
+      } else {
+        tab.object = newObject
+        tab.objectEdit = undefined
+        tab.data = newObject.getCurrentState()
+      }
     }
 
     return {
@@ -139,6 +156,7 @@ export const useWindowStore = defineStore(
       showTab,
       updateTabData,
       objectByTabId,
+      objectEditByTabId,
       setContentTab,
       switchTabEditMode,
     }

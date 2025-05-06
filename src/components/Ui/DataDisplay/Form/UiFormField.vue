@@ -1,9 +1,11 @@
 <template>
   <div class="ui-form-field" :class="[...modifiers]">
     <template v-if="separateLabel">
-      <label v-if="label" class="ui-form-field__label" :for="id">
+      <label class="ui-form-field__label" :for="id">
+        <!--        \u200B - (нуль ширины пробел) для того, чтобы был контент в элементе, если он не содержит текста и считалась высота строки-->
         <span
-          >{{ label }}<span v-if="isRequired" class="ui-form-field__label-sup-star">*</span></span
+          >{{ label || '\u200B'
+          }}<span v-if="isRequired" class="ui-form-field__label-sup-star">*</span></span
         >
         <div
           v-if="error"
@@ -92,9 +94,10 @@ const modifiers = computed(() => [
     display: flex;
     flex: 1;
     flex-direction: row;
-    justify-content: center;
-    align-items: flex-end;
+    justify-content: flex-start;
+    align-items: center;
   }
+
   &__label {
     display: flex;
     align-items: center;

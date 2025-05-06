@@ -74,7 +74,7 @@ import { onClickOutside } from '@vueuse/core'
 import VueSelect from 'vue-select'
 import type { ISelect } from '@/core/interface/Ui'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 
 defineComponent(VueSelect)
 const emit = defineEmits(['onSelect'])
@@ -224,6 +224,7 @@ const onClickWrapper = () => {
     display: flex;
     align-items: center;
     min-height: 16px;
+
     .cb {
       flex: 0 0 auto;
       margin-right: 6px;
@@ -246,8 +247,6 @@ const onClickWrapper = () => {
 </style>
 
 <style lang="scss" scoped>
-@import 'vue-select/dist/vue-select.css';
-
 .v-select {
   height: 32px;
 }
@@ -333,6 +332,7 @@ const onClickWrapper = () => {
     flex: 0 0 auto;
     fill: var(--color-gray) !important;
     font-size: 0;
+
     .svg-icon {
       font-size: var(--font-size-24);
     }
@@ -371,9 +371,11 @@ const onClickWrapper = () => {
 
   .vs__dropdown-option--selected {
     padding-right: 16px;
+
     .cb {
       &__icon {
         border-color: var(--color-primary);
+
         .svg-icon {
           opacity: 1;
           transform: scale(1);
@@ -393,9 +395,11 @@ const onClickWrapper = () => {
     width: 12px;
     margin-right: 12px;
     font-size: 0;
+
     .svg-icon {
       font-size: 10px;
     }
+
     &:hover {
       color: var(--color-primary);
     }
@@ -412,6 +416,7 @@ const onClickWrapper = () => {
       .vs__open-indicator {
         transform: none;
       }
+
       .vs__dropdown-toggle {
         border-color: var(--color-primary-hover);
       }

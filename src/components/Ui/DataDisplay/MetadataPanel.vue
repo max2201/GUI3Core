@@ -14,9 +14,10 @@ import { FreeModalTarget } from '@/core/interface/FreeModal'
 import type { LiteViewBlockGroup } from '@/core/interface/Object'
 import type { IMetaDataGroup } from '@/core/interface/Requests'
 import { openFreeModal } from '@/core/utils/openFreeModal'
+import type { ClientPanel } from '@/core/interface/Client'
 
 const props = defineProps<{
-  panel: IMetaDataGroup
+  panel: IMetaDataGroup | ClientPanel
 }>()
 
 const openModal = () => {
@@ -65,7 +66,7 @@ const openModal = () => {
     border-bottom: 1px dashed;
     cursor: pointer;
 
-    :deep(.svg-icon ) {
+    :deep(.svg-icon) {
       position: relative;
       top: 8px;
     }

@@ -177,6 +177,33 @@ export const RemoveModuleFromFavorite = async (ModuleId: string, ViewId: string 
 
   return { data, error }
 }
+export const SetFavoriteModuleToTableWidget = async (ModuleId: string, ViewId: string = '') => {
+  const { data, error }: IApiResponse<string[]> = await useApi(
+    'Modules.SetFavoriteModuleToTableWidget',
+    {
+      moduleId: ModuleId,
+      body: {
+        ViewId,
+      },
+    },
+  )
+
+  return { data, error }
+}
+
+export const DelFavoriteModuleFromTableWidget = async (ModuleId: string, ViewId: string = '') => {
+  const { data, error }: IApiResponse<string[]> = await useApi(
+    'Modules.DelFavoriteModuleFromTableWidget',
+    {
+      moduleId: ModuleId,
+      body: {
+        ViewId,
+      },
+    },
+  )
+
+  return { data, error }
+}
 
 export const GetTasksCount = async () => {
   const { data, error }: IApiResponse<string[]> = await useApi(

@@ -89,7 +89,7 @@ const handleClickStar = () => emit('click-star')
   }
 
   &:hover {
-    border: var(--border-default);
+    background: var(--component-gray-background);
     cursor: pointer;
   }
 }

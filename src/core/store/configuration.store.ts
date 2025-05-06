@@ -1,4 +1,8 @@
-import type { Dictionary, VirtualDictionaries } from '@/core/interface/Configuration'
+import type {
+  Dictionary,
+  IEnumDictionaries,
+  VirtualDictionaries,
+} from '@/core/interface/Configuration'
 import type { IModuleDto, IModuleGroupDto } from '@/core/interface/Module'
 import { GetConfiguration } from '@/core/api/configuration.api'
 import { useUploadFilesStore } from '@/core/store/uploadFiles.store'
@@ -9,6 +13,7 @@ interface ConfigurationStoreState {
   BaseObjectsColors: { [key: string]: string }
   Dictionaries: Dictionary[]
   VirtualDictionaries: VirtualDictionaries
+  EnumDictionaries: IEnumDictionaries
   SystemColors: { [key: string]: string }
   SystemType: number | null
   ModuleGroups: IModuleGroupDto[]
@@ -19,6 +24,7 @@ interface ConfigurationStoreInitPayload {
   BaseObjectsColors: { [key: string]: string }
   Dictionaries: Dictionary[]
   VirtualDictionaries: VirtualDictionaries
+  EnumDictionaries: IEnumDictionaries
   SystemColors: { [key: string]: string }
   SystemType: number
   ModuleGroups: IModuleGroupDto[]
@@ -35,6 +41,7 @@ export const useConfigurationStore = defineStore('configuration', {
       BaseObjectsColors: {},
       Dictionaries: [],
       VirtualDictionaries: {},
+      EnumDictionaries: {},
       SystemColors: {},
       SystemType: null,
       ModuleGroups: [],
@@ -94,6 +101,7 @@ export const useConfigurationStore = defineStore('configuration', {
           BaseObjectsColors: data.BaseObjectsColors,
           Dictionaries: data.Dictionaries,
           VirtualDictionaries: data.VirtualDictionaries,
+          EnumDictionaries: data.EnumDictionaries,
           SystemColors: data.SystemColors,
           SystemType: data.SystemType,
           ModuleGroups: data.ModuleGroups,
@@ -106,6 +114,7 @@ export const useConfigurationStore = defineStore('configuration', {
       BaseObjectsColors,
       Dictionaries,
       VirtualDictionaries,
+      EnumDictionaries,
       SystemColors,
       SystemType,
       ModuleGroups,
@@ -113,6 +122,7 @@ export const useConfigurationStore = defineStore('configuration', {
       this.BaseObjectsColors = BaseObjectsColors
       this.Dictionaries = Dictionaries
       this.VirtualDictionaries = VirtualDictionaries
+      this.EnumDictionaries = EnumDictionaries
       this.SystemColors = SystemColors
       this.SystemType = SystemType
       this.ModuleGroups = ModuleGroups
@@ -133,6 +143,7 @@ export const useConfigurationStore = defineStore('configuration', {
             BaseObjectsColors: this.BaseObjectsColors,
             Dictionaries: this.Dictionaries,
             VirtualDictionaries: this.VirtualDictionaries,
+            EnumDictionaries: this.EnumDictionaries,
             SystemColors: this.SystemColors,
             ModuleGroups: this.ModuleGroups,
             SystemType: this.SystemType,
@@ -154,6 +165,7 @@ export const useConfigurationStore = defineStore('configuration', {
           BaseObjectsColors: configuration.BaseObjectsColors,
           Dictionaries: configuration.Dictionaries,
           VirtualDictionaries: configuration.VirtualDictionaries,
+          EnumDictionaries: configuration.EnumDictionaries,
           SystemColors: configuration.SystemColors,
           SystemType: configuration.SystemType,
           ModuleGroups: configuration.ModuleGroups,

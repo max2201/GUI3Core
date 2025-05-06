@@ -25,7 +25,7 @@ import {
 } from '@/core/api/requests.api'
 import { FieldGroupStates } from '@/core/constants/FieldGroupStates'
 
-export class RequestObject extends BaseObject {
+export class RequestObject extends BaseObject<IRequestDto> {
   public rawData?: IRequestDto
   public currentState?: IRequestDto
   private stepsState?: ObjectStepsForm
@@ -76,7 +76,7 @@ export class RequestObject extends BaseObject {
       })
     } else {
       return GetObjectDto({
-        ObjectId: this.id < 0 ? -1 : this.id,
+        ObjectId: this.id,
         BaseObjectType: BaseObjectType.Requst,
         DtoViewType: this.id < 0 ? DtoObjectViewType.PrimaryEdit : DtoObjectViewType.PrimaryView,
       }).then(({ data, error }) => {

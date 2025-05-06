@@ -123,7 +123,7 @@ import type { ValidateResultSimple } from '@/core/interface/ValidateResult'
 import { RequestMergeToClient } from '@/core/api/requests.api'
 import { FieldType } from '@/core/constants/FieldType'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 const sharedModals = useSharedModalsStore()
 const props = defineProps<{
   objectId: number
@@ -187,6 +187,7 @@ const formatAllStepsFields = () => {
       })
     })
   }
+  console.log(Steps)
   return JSON.stringify(Steps)
 }
 interface InvalidFieldInfo {
@@ -285,7 +286,7 @@ const handleFormSave = async (stepsString) => {
   try {
     isSaveLoading.value = true
     // Выполняем дополнительную валидацию
-    const validationResult = await object.ValidateRequest(stepsString)
+    const validationResult = await object?.ValidateRequest(stepsString)
   } catch (validationError) {
     isSaveLoading.value = false
     processValidationErrors(validationError)

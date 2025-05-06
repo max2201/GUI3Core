@@ -1,5 +1,5 @@
 <template>
-  <div class="ui-field-input">
+  <div class="ui-field-input" :class="wrapperClass">
     <UiInput1
       v-if="[FieldType.Input, FieldType.ClientFIO, FieldType.Number].includes(type as FieldType)"
       :id="id"
@@ -31,6 +31,30 @@
             : ''
       "
       @maska="maskCompletedCheck($event)"
+    />
+    <UiPhoneInput
+      v-else-if="type === FieldType.Phone"
+      :id="id"
+      :model-value="preparedValue"
+      :label="label"
+      :has-modified="hasModified"
+      :disabled="disabled"
+      :tab-index="tabIndex"
+      :error="error"
+      :is-required="isRequired"
+      :validator="validator"
+      :format="value && value.IsInternational ? 'short' : 'full'"
+      v-bind="$attrs"
+      :theme="
+        (isCurrentValueValid === true && 'success') ||
+        (isCurrentValueValid === false && 'error') ||
+        'primary'
+      "
+      @change="onChange"
+      @on-enter="onEnter"
+      @valid-state="onValidState"
+      @invalid-state="onInvalidState"
+      @ready-to-focus-next="onEnter"
     />
     <UiInput1
       v-else-if="type === FieldType.Text"
@@ -137,7 +161,7 @@
     <UiFIOInput
       v-else-if="type.startsWith(FieldType.ComplexFIO)"
       :id="id"
-      :name="name"
+      :name="name || type"
       :label="label"
       :value="value"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -150,24 +174,28 @@
       @valid-state="onValidState"
       @invalid-state="onInvalidState"
     />
-    <UiDateSimpleInput
-      v-else-if="[FieldType.ClientBirthday, FieldType.DateString].includes(type as FieldType)"
-      :id="id"
-      :value="preparedValue"
-      :label="label"
-      :has-modified="hasModified"
-      :disabled="disabled"
-      :tab-index="tabIndex"
-      :is-required="isRequired"
-      readable-disable-mode
-      @on-change="onChange"
-      @on-enter="onEnter"
-      @on-valid="onEnter"
-      @valid-state="onValidState"
-      @invalid-state="onInvalidState"
-    />
+    <!--    <UiDateSimpleInput-->
+    <!--      :id="id"-->
+    <!--      :value="preparedValue"-->
+    <!--      :label="label"-->
+    <!--      :has-modified="hasModified"-->
+    <!--      :disabled="disabled"-->
+    <!--      :tab-index="tabIndex"-->
+    <!--      :is-required="isRequired"-->
+    <!--      readable-disable-mode-->
+    <!--      @on-change="onChange"-->
+    <!--      @on-enter="onEnter"-->
+    <!--      @on-valid="onEnter"-->
+    <!--      @valid-state="onValidState"-->
+    <!--      @invalid-state="onInvalidState"-->
+    <!--      v-bind="$attrs"-->
+    <!--    />-->
     <UiDatepicker
-      v-else-if="type === FieldType.DatetimeList"
+      v-else-if="
+        [FieldType.ClientBirthday, FieldType.DateString, FieldType.DatetimeList].includes(
+          type as FieldType,
+        )
+      "
       :id="id"
       clearable
       :model-value="preparedValue"
@@ -175,13 +203,21 @@
       :label="label"
       :tab-index="tabIndex"
       :is-required="isRequired"
-      mode="dateTime"
+      v-bind="$attrs"
+      :input-theme="
+        (isCurrentValueValid === true && 'success') ||
+        (isCurrentValueValid === false && 'error') ||
+        'primary'
+      "
+      :is-string="type === FieldType.DateString"
+      :mode="type == FieldType.DatetimeList ? 'dateTime' : 'date'"
       @update:model-value="onChange"
+      @maska="maskCompletedCheck($event)"
     />
     <UiAddressInput
       v-else-if="type.startsWith(FieldType.Address)"
       :id="id"
-      :name="name"
+      :name="name || type"
       :label="label"
       :value="preparedValue"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -197,7 +233,8 @@
     <UiDriverLicenseInput
       v-else-if="type.startsWith(FieldType.DriverLicence)"
       :id="id"
-      :name="name"
+      :name="name || type"
+      v-bind="$attrs"
       :value="preparedValue"
       :label="label"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -214,7 +251,7 @@
     <UiSTSInput
       v-else-if="type.startsWith(FieldType.STS)"
       :id="id"
-      :name="name"
+      :name="name || type"
       :value="preparedValue"
       :label="label"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -231,7 +268,7 @@
     <UiPTSInput
       v-else-if="type.startsWith(FieldType.PTS)"
       :id="id"
-      :name="name"
+      :name="name || type"
       :value="preparedValue"
       :label="label"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -248,7 +285,7 @@
     <UiPassportInput
       v-else-if="type.startsWith(FieldType.PassportBase)"
       :id="id"
-      :name="name"
+      :name="name || type"
       :value="preparedValue"
       :label="label"
       :dialog-anchor-id="dialogAnchorId || ''"
@@ -263,7 +300,52 @@
       @invalid-state="onInvalidState"
       :is-full="type === FieldType.PassportFull"
     />
-
+    <UiOkatoInput
+      v-else-if="type.startsWith(FieldType.OKATO)"
+      :id="id"
+      :name="name || type"
+      :value="preparedValue"
+      :label="label"
+      :tab-index="tabIndex"
+      :disabled="disabled"
+      :is-required="isRequired"
+      @change="onChange"
+      v-bind="$attrs"
+    />
+    <UIWorkingPlace
+      v-else-if="type.startsWith(FieldType.WorkingPlace)"
+      :id="FieldType.WorkingPlace"
+      :name="name || type"
+      :value="preparedValue"
+      :label="label"
+      :dialog-anchor-id="dialogAnchorId || ''"
+      :tab-index="tabIndex"
+      :disabled="disabled"
+      :sub-fields="subFields"
+      :is-required="isRequired"
+      @change="onChange"
+      @open-dialog="openDialog"
+      @close-dialog="closeDialog"
+      @valid-state="onValidState"
+      @invalid-state="onInvalidState"
+    />
+    <!--    <UIWorkingPlace-->
+    <!--      v-else-if="type.startsWith(FieldType.BankInfo)"-->
+    <!--      :id="id"-->
+    <!--      :name="id"-->
+    <!--      :value="preparedValue"-->
+    <!--      :label="label"-->
+    <!--      :dialog-anchor-id="dialogAnchorId || ''"-->
+    <!--      :tab-index="tabIndex"-->
+    <!--      :disabled="disabled"-->
+    <!--      :sub-fields="subFields"-->
+    <!--      :is-required="isRequired"-->
+    <!--      @change="onChange"-->
+    <!--      @open-dialog="openDialog"-->
+    <!--      @close-dialog="closeDialog"-->
+    <!--      @valid-state="onValidState"-->
+    <!--      @invalid-state="onInvalidState"-->
+    <!--    />-->
     <template v-else>
       <span :id="id">{{ label }}</span>
       <hr />
@@ -273,18 +355,21 @@
 
 <script setup lang="ts">
 import _ from 'lodash'
-import moment from 'moment'
 import { FieldType } from '@/core/constants/FieldType'
 import type { IUiObjectStepField } from '@/core/interface/Object'
 import { getValidationService } from '@/core/utils/Validation'
 import { getFormatService } from '@/core/utils/Formaters'
-import { DefaultDateFormat, DefaultDatetimeFormat } from '@/core/constants/DefaultDatetimeFormats'
+
 import type { MaskInputOptions } from 'maska'
+
+defineOptions({
+  inheritAttrs: true,
+})
 
 const props = defineProps<{
   id: string
   type: string
-  name: string
+  name?: string
   value: any
   subFields?: IUiObjectStepField[]
   disabled?: boolean
@@ -298,6 +383,7 @@ const props = defineProps<{
   error?: boolean
   damageValue?: string
   mask?: string | MaskInputOptions
+  wrapperClass?: string
 }>()
 
 const emits = defineEmits([
@@ -333,12 +419,7 @@ const preparedValue = computed(() => {
     case 'checkbox': {
       return props.value === 'True'
     }
-    case 'date-list': {
-      return moment(props.value, DefaultDateFormat).toString()
-    }
-    case 'dateTime-list': {
-      return moment(props.value, DefaultDatetimeFormat).toString()
-    }
+
     default: {
       return props.value
     }
@@ -366,6 +447,7 @@ const onInput = (value: any) => {
     case FieldType.Text:
     case FieldType.Number:
     case FieldType.ClientFIO:
+    case FieldType.Phone:
     case FieldType.Input: {
       onChange(value)
 
@@ -421,14 +503,7 @@ const onChange = (value: any) => {
       emits('change', preparedValue.value ? 'False' : 'True')
       return
     }
-    case 'date-list': {
-      emits('change', moment(value).format(DefaultDateFormat))
-      return
-    }
-    case 'dateTime-list': {
-      emits('change', moment(value).format(DefaultDatetimeFormat))
-      return
-    }
+
     default: {
       emits('change', value)
     }
@@ -440,7 +515,15 @@ const createOption = (value) => {
 }
 
 const isCurrentValueValid = computed(() => {
-  if (![FieldType.Input, FieldType.Number].includes(props.type as FieldType)) {
+  if (
+    ![
+      FieldType.Input,
+      FieldType.Number,
+      FieldType.ClientBirthday,
+      FieldType.DateString,
+      FieldType.DatetimeList,
+    ].includes(props.type as FieldType)
+  ) {
     return undefined
   }
   if (preparedValue.value) {

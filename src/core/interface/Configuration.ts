@@ -29,7 +29,10 @@ export interface OksmListItem {
 export interface VirtualDictionaries {
   OksmList?: OksmListItem[]
 }
-
+type CardType = Record<number, string>
+export interface IEnumDictionaries {
+  CardType?: CardType
+}
 export interface FileFolder {
   ParentBaseObjectType: number
   EnabledForRoles: any[] // ?
@@ -40,6 +43,7 @@ export interface FileFolder {
 
 export interface IConfigurationDTO {
   VirtualDictionaries: VirtualDictionaries
+  EnumDictionaries: IEnumDictionaries
   SystemType: number
   ModuleGroups: IModuleGroupDto[]
   BaseObjectsColors: { [key: string]: string }

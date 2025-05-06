@@ -11,7 +11,7 @@
         :class="{ 'ui-field-detials-modal--compact': compact }"
         :style="[
           {
-            width: width ? `${width}px` : '',
+            width: width ? width : '',
           },
         ]"
         @click.stop.prevent
@@ -27,12 +27,14 @@
         </div>
 
         <div class="ui-field-detials-modal__content">
-          <div class="ui-field-detials-modal__title">
-            <div>{{ title }}</div>
-          </div>
-          <div class="ui-field-detials-modal__body">
-            <slot></slot>
-          </div>
+          <slot name="content">
+            <div class="ui-field-detials-modal__title">
+              <div>{{ title }}</div>
+            </div>
+            <div class="ui-field-detials-modal__body">
+              <slot></slot>
+            </div>
+          </slot>
         </div>
 
         <div class="ui-field-detials-modal__actions">
@@ -56,7 +58,7 @@ const props = defineProps<{
   title: string
   isOpen: boolean
   anchorId?: string
-  width?: number
+  width?: string
   hideClose?: boolean
   compact?: boolean
 }>()
@@ -132,6 +134,8 @@ const onClose = () => {
 }
 
 .ui-field-detials-modal {
+  max-height: 90%;
+  overflow: hidden;
   position: relative;
   width: 760px;
   display: flex;
@@ -143,13 +147,16 @@ const onClose = () => {
     width: 520px;
   }
   &__content {
+    overflow: hidden;
     padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
   &__title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
     color: var(--color-font);
     font-weight: 600;
     font-size: var(--font-size-16);
@@ -162,7 +169,9 @@ const onClose = () => {
     padding: 1px 2px;
   }
   &__body {
-    display: block;
+    //overflow: hidden;
+    //overflow-y: auto;
+    //display: block;
   }
 
   &__actions {

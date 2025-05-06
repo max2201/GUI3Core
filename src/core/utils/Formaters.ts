@@ -130,7 +130,7 @@ export const getFormatService = (formatter?: string): FormatterService => {
   }
 }
 
-export const formatPhoneNumber = (phoneNumber) => {
+export const formatPhoneNumber1 = (phoneNumber) => {
   // Удаляем все, кроме цифр
   const cleaned = phoneNumber.replace(/\D/g, '')
 

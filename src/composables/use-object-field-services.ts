@@ -59,7 +59,10 @@ export const useObjectFieldServices = (fields: ComputedRef<IUiObjectStepField[]>
     return Object.values(modifiedFields.value).some((value) => value)
   })
 
-  const updateFormFieldsFromSteps = (newFields: IUiObjectStepField[] | undefined) => {
+  const updateFormFieldsFromSteps = (
+    newFields: IUiObjectStepField[] | undefined,
+    isValueKey?: boolean,
+  ) => {
     const newRawFields = markRaw(toRaw(unref(newFields || [])))
     if (!newRawFields.length) {
       form.value = {}
@@ -68,23 +71,43 @@ export const useObjectFieldServices = (fields: ComputedRef<IUiObjectStepField[]>
     form.value = newRawFields.reduce((acc, field) => {
       if (field.SubFields) {
         if (field.SubFields.length === 0) {
-          acc[field.Code] = field.Value
+          if (isValueKey) {
+            acc[field.ValueKey] = field.Value
+          } else {
+            acc[field.Code] = field.Value
+          }
         } else {
-          acc[field.Code] = field.SubFields.reduce((accSubs, subfield) => {
-            accSubs[subfield.Code] = subfield.Value
-            return accSubs
-          }, {})
+          if (isValueKey) {
+            acc[field.ValueKey] = field.SubFields.reduce((accSubs, subfield) => {
+              accSubs[subfield.ValueKey] = subfield.Value
+              return accSubs
+            }, {})
+          } else {
+            acc[field.Code] = field.SubFields.reduce((accSubs, subfield) => {
+              accSubs[subfield.Code] = subfield.Value
+              return accSubs
+            }, {})
+          }
         }
 
         return acc
       }
       if (field.FieldType?.startsWith(FieldType.Complex)) {
-        acc[field.Code] = field.ComplexValue
+        if (isValueKey) {
+          acc[field.ValueKey] = field.ComplexValue
+          return acc
+        } else {
+          acc[field.Code] = field.ComplexValue
+          return acc
+        }
+      }
+      if (isValueKey) {
+        acc[field.ValueKey] = field.Value
+        return acc
+      } else {
+        acc[field.Code] = field.Value
         return acc
       }
-
-      acc[field.Code] = field.Value
-      return acc
     }, {})
   }
 
@@ -109,7 +132,7 @@ export const useObjectFieldServices = (fields: ComputedRef<IUiObjectStepField[]>
 
     if (!field?.Code) return
 
-    EventBus.emit(GlobalEvents.FocusElement, field.UiId)
+    EventBus.emit(GlobalEvents.FocusElement, field.UiId || field.Code)
   }
 
   return {

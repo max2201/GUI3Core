@@ -310,6 +310,9 @@ const getFieldGridSpan = (field: IObjectStepField) => {
 // ---------------------------
 // Методы
 // ---------------------------
+let saveOpenedDialog
+let getOpenedDialog
+let closeOpenedDialog
 const updateFieldDialogs = () => {
   if (!objectData.value) return
 
@@ -329,10 +332,6 @@ const updateFieldDialogs = () => {
     }
   })
 }
-
-let saveOpenedDialog
-let getOpenedDialog
-let closeOpenedDialog
 
 const openFieldDialog = (field: IObjectStepField, data: any) => {
   saveOpenedDialog({
@@ -490,7 +489,6 @@ const setReasonCancel = () => {
     position: relative;
     padding: 24px;
     overflow-y: auto;
-    max-height: 550px;
   }
 }
 
@@ -516,7 +514,6 @@ const setReasonCancel = () => {
   position: relative;
   padding: 24px;
   overflow-y: auto;
-  max-height: 550px;
 }
 
 .request-steps__result {

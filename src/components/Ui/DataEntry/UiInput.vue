@@ -79,7 +79,7 @@
 import { nanoid } from 'nanoid'
 import { createPopper } from '@popperjs/core'
 
-const id = nanoid()
+const id = 'id_' + nanoid(10)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const emit = defineEmits([

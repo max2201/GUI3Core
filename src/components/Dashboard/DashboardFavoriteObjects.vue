@@ -1,10 +1,16 @@
 <template>
-  <div class="fav-objects">
-    <h3 class="fav-objects__title mb-3">
-      <SvgIcon name="star" class="fav-objects__title__star mr-2" />
-      Избранное
-      <span class="element-pill">{{ objectItems.length }}</span>
-    </h3>
+  <DashboardWidgetGroup class="fav-objects">
+    <template #title>
+      <h3 class="fav-objects__title">
+        <SvgIcon name="star" class="fav-objects__title__star mr-2" />
+        Избранное
+        <span class="element-pill">{{ objectItems.length }}</span>
+      </h3>
+    </template>
+    <template #actions>
+      <span></span>
+    </template>
+
     <div class="fav-objects__items">
       <ObjectPanel
         v-for="objectItem in objectItems"
@@ -24,7 +30,7 @@
         >
       </div>
     </div>
-  </div>
+  </DashboardWidgetGroup>
 </template>
 
 <script setup lang="ts">
@@ -72,10 +78,6 @@ const handleOpenFavObject = async (object: FavoriteObject) => {
 
 <style scoped lang="scss">
 .fav-objects {
-  display: grid;
-  grid-template-rows: 32px auto;
-  background-color: var(--color-background);
-  min-height: 115px;
   height: 100%;
   overflow: hidden;
 
@@ -101,8 +103,17 @@ const handleOpenFavObject = async (object: FavoriteObject) => {
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 50px;
-    max-height: 300px;
-    padding: 4px 0;
+    &::-webkit-scrollbar {
+      background-color: var(--component-background) !important;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--component-background) !important;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-color: var(--component-background) !important;
+    }
 
     &__empty {
       display: flex;

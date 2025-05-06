@@ -6,83 +6,75 @@
           :class="[
             'block-disable-deal',
             {
-              'block-disable-deal_active': isActiveBlockDeal,
+              'block-disable-deal_active': objectData.BanField.currentVal == 'True',
             },
           ]"
         >
-          <UiSwitch1 v-model="isActiveBlockDeal" label="Запрет на заключение договора" />
+          <UIObjectMainField
+            :field="objectData.BanField"
+            v-model="objectData.BanField.currentVal"
+            is-switch
+          />
           <UiInput1 v-if="isActiveBlockDeal" label="Причина блокировки" />
         </div>
 
         <div class="block">
-          <div class="block-head">
-            <span class="block-head-title">Контактные лица</span>
-            <UiButton1 :icon-size="24" icon-left="plus-circle" size="small" />
-          </div>
-
-          <table class="simple-table">
-            <thead>
-              <tr>
-                <th>ФИО</th>
-                <th>Кем приходится</th>
-                <th width="130">Телефон</th>
-                <th>Комментарий</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="row in contactsTable" :key="row.id">
-                <td v-for="cell in contactsTableCells" :key="cell">{{ row.cells[cell] }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <CollectionTable
+            v-if="objectData?.ContactPersonsInfo"
+            type="contact"
+            :object="objectData.ContactPersonsInfo"
+            :id="formId"
+          ></CollectionTable>
         </div>
-
         <div class="block">
-          <div class="block-head">
-            <span class="block-head-title">Банковские карты</span>
-            <UiButton1 :icon-size="24" icon-left="plus-circle" size="small" />
-          </div>
-
-          <table class="simple-table">
-            <thead>
-              <tr>
-                <th>Тип</th>
-                <th>Номер</th>
-                <th>Дата</th>
-                <th>Банк</th>
-                <th>Комментарий</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="row in cardsTable" :key="row.id">
-                <td v-for="cell in cardsTableCells" :key="cell">{{ row.cells[cell] }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <CollectionTable
+            v-if="objectData?.ReverseContactPersonsInfo"
+            type="clients"
+            :object="objectData.ReverseContactPersonsInfo"
+            :id="formId"
+          ></CollectionTable>
+          <CollectionTable
+            v-if="objectData?.BankCardsInfo"
+            type="card"
+            :object="objectData.BankCardsInfo"
+            :id="formId"
+          ></CollectionTable>
         </div>
-
         <div class="block">
           <div class="block-head">
             <span class="block-head-title">Постоянный договор</span>
           </div>
 
           <div class="block-grid">
-            <UiInput1 label="Название" :additional-class="['span-2']" />
-            <UiInput1 label="Номер" />
-            <UiInput1 label="Дата" />
+            <UIObjectMainField
+              :field="objectData.SingleContractTitleField"
+              v-model="objectData.SingleContractTitleField.currentVal"
+              wrapper-class="span-2"
+            />
+            <UIObjectMainField
+              :field="objectData.SingleContractNumberField"
+              v-model="objectData.SingleContractNumberField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.SingleContractDateField"
+              v-model="objectData.SingleContractDateField.currentVal"
+            />
           </div>
         </div>
-
         <div class="block">
           <div class="block-head">
             <span class="block-head-title">Скидки и бонусы</span>
           </div>
 
           <div class="block-grid">
-            <UiInput1 label="Скидка, %" />
-            <UiInput1 label="Бонус, %" />
+            <UIObjectMainField
+              :field="objectData.DiscountField"
+              v-model="objectData.DiscountField.currentVal"
+            />
+            <UIObjectMainField
+              :field="objectData.BonusField"
+              v-model="objectData.BonusField.currentVal"
+            />
             <UiInput1 label="Карта лояльности" :additional-class="['span-2']" />
           </div>
         </div>
@@ -91,75 +83,33 @@
 
     <div class="client-edit-main-form__buttons">
       <UiButton1 v-if="!isLoadingUpdate" theme="secondary" @click="onCancel">Отменить</UiButton1>
-      <UiButton1 :loading="isLoadingUpdate">Сохранить</UiButton1>
+      <UiButton1 :disabled="!isEdit" :loading="isLoadingUpdate" @click="onUpdate"
+        >Сохранить</UiButton1
+      >
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, unref } from 'vue'
-import { useToast } from 'vue-toastification/dist/index.mjs'
-import { ClientValidate, ClientUpdate, ClientsGetFormFields } from '@/core/api/clients.api'
-import { GetObjectDto } from '@/core/api/object.api'
-import type { IObjectDto } from '@/core/interface/Object'
-import type { FormField } from '@/core/interface/FormField'
-import { DtoObjectViewType } from '@/core/constants/DtoObjectViewType'
-import { customAlphabet } from 'nanoid'
-import UiTabs from '@/components/Ui/DataDisplay/UiTabs.vue'
-import UiDatepicker from '@/components/Ui/DataEntry/UiDatepicker.vue'
-import IconButton from '@/components/Ui/DataDisplay/IconButton.vue'
-import UiBadge from '@/components/Ui/DataDisplay/UiBadge.vue'
-
-const nanoid = customAlphabet('abcdef', 10)
-const formId = ref(nanoid(10))
+import type { IClientEditDto } from '@/core/interface/Client'
 
 const props = defineProps<{
-  object: IObjectDto
+  object: IClientEditDto
+  isEdit: boolean
+  formId: string
+  loading?: boolean
 }>()
-
-const emits = defineEmits(['close'])
+const objectData = ref(props.object)
+const emits = defineEmits(['close', 'update'])
 
 const isLoadingUpdate = ref(false)
 const isActiveBlockDeal = ref(false)
 
-const contactsTableCells = ['fio', 'who', 'tel', 'comment']
-const contactsTable = [
-  {
-    id: 0,
-    cells: {
-      fio: 'Савельев Владимир Викторович',
-      who: 'брат',
-      tel: '(052) 107-2308',
-      comment: 'для экстренных случаев',
-    },
-  },
-  {
-    id: 1,
-    cells: {
-      fio: 'Савельева Ирина',
-      who: 'сестра',
-      tel: '(052) 111-2308',
-      comment: 'не звонить просто так а почему бы и нет если надо',
-    },
-  },
-]
-
-const cardsTableCells = ['type', 'number', 'date', 'bankname', 'comment']
-const cardsTable = [
-  {
-    id: 0,
-    cells: {
-      type: 'МИР',
-      number: '3456 2454 4548 1222',
-      date: '20.08.2024',
-      bankname: 'Т-банк',
-      comment: 'зарплатная',
-    },
-  },
-]
-
 const onCancel = () => {
   emits('close')
+}
+const onUpdate = () => {
+  emits('update')
 }
 </script>
 
@@ -214,6 +164,12 @@ const onCancel = () => {
   background-color: var(--component-green-background-light);
 
   &_active {
+    :deep(.ui-switch__wrapper, ) {
+      background-color: var(--component-danger);
+    }
+    :deep(.ui-switch--active:hover .ui-switch__wrapper) {
+      background-color: var(--component-danger-hover);
+    }
     background-color: var(--component-danger-background);
   }
 }

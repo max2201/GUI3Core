@@ -3,6 +3,8 @@ import type { RecognitionResult } from '@/core/constants/RecognitionResult'
 import type { ITableRow } from '@/core/interface/Table'
 import type { GroupViewTypes } from '@/core/constants/GroupViewTypes'
 import { PassportTypes } from '@/core/constants/PassportTypes'
+import type { IPhones } from '@/core/interface/Client'
+import { FieldType } from '@/core/constants/FieldType'
 
 export interface IPhoneCell {
   Title: string
@@ -87,8 +89,12 @@ export enum ViewFieldTypes {
   /// Похож на простой вид, но с икнокой перед Value
   /// </summary>
   SimpleWithIcon = 14,
+  /// комплексные поля
+  ComplexPanel = 15,
 }
-
+export enum CardType {
+  Visa = 0,
+}
 export interface ContextBlockField {
   Title: string
   Code: string
@@ -137,6 +143,7 @@ export interface IBaseGroupType {
   GroupType: GroupViewTypes
   Fields: unknown
   LinkedBaseObject: null
+  AccessDenied?: boolean
 }
 
 export interface LiteViewBlockGroup {
@@ -167,8 +174,18 @@ export enum RequestObjectStepFieldType {
   input = 'input',
   text = 'text',
   dropdown = 'dropdown',
+  phone = 'phone-string',
 }
-
+export interface IMetaDataGroup {
+  Code: string
+  Title: string
+  HideTitle: boolean
+  AggregateValue: string
+  Detailing: string
+  GroupType: number
+  Fields: LiteViewBlockField[]
+  LinkedBaseObject: null
+}
 export const isRequestObjectStepFieldType = (value: string) => {
   return Boolean(RequestObjectStepFieldType[value])
 }
@@ -176,7 +193,8 @@ export const isRequestObjectStepFieldType = (value: string) => {
 export interface IObjectStepField {
   Title: string
   Code: string
-  FieldType: RequestObjectStepFieldType | string
+  ValueKey: string
+  FieldType: FieldType | string
   Lng: string
   AviableValues: string
   DamagesValue: string
@@ -253,7 +271,7 @@ export interface IObjectDto {
   BaseObjectType: number
   BaseObjectName: string
   DtoViewType: DtoObjectViewType
-  Phones: IPhoneCell[]
+  Phones: IPhones
   Flags: IObjectFlag[] | null
   ContextBlockGroups?: ContextBlockGroup[]
   LiteViewBlockGroups?: LiteViewBlockGroup[]
@@ -340,7 +358,7 @@ export interface IPassportRf {
   Birthplace: string
   BirthplaceOKCMCode: string
   BirthplaceOKATOCode: string
-  RegisterAddress: IAddressValue
+  RegisterAddress: IAddressValue | null
 }
 export interface IPassportResidence {
   Number: string
@@ -352,7 +370,7 @@ export interface IPassportResidence {
   RegistryDate: string
   ExpirationDate: string
   Citizenship: string
-  RegisterAddress: IAddressValue
+  RegisterAddress: IAddressValue | null
 }
 export interface IPassportForegin {
   Number: string
@@ -364,7 +382,7 @@ export interface IPassportForegin {
   RegistryDate: string
   ExpirationDate: string
   Citizenship: string
-  RegisterAddress: IAddressValue
+  RegisterAddress: IAddressValue | null
 }
 export interface IPassportData {
   DocumentType: PassportTypes

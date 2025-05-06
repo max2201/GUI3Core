@@ -9,30 +9,40 @@
       :mode="mode"
       is24hr
       :is-required="!clearable"
-      :popover="{
-        visibility: 'focus',
-        placement: 'bottom',
-      }"
+      :popover="
+        isString
+          ? false
+          : {
+              visibility: 'focus',
+              placement: 'bottom',
+            }
+      "
       :min-date="$attrs['min-date'] || new Date('1925-01-01')"
+      :max-date="$attrs['max-date'] || new Date('2100-01-01')"
     >
       <template #default="{ togglePopover, inputValue, inputEvents }">
         <slot :slotScope="{ togglePopover, inputValue, inputEvents }">
           <UiInput1
-            :theme="inputTheme"
             :id="id"
+            :theme="inputTheme"
             :label="label"
             :placeholder="
               placeholder ? placeholder : mode === 'date' ? 'ДД.ММ.ГГГГ' : 'ДД.ММ.ГГГГ ЧЧ:ММ'
             "
+            ref="inputRef"
             :disabled="disabled"
             :clearable="!disabled && clearable"
-            :model-value="inputValue"
+            :model-value="
+              inputValue.length === 2 || inputValue.length === 5 ? inputValue + '.' : inputValue
+            "
             v-on="inputEvents"
-            @clear-input="localValue = ''"
-            :icon="icon"
+            @clear-input="clean"
+            :icon="isString ? undefined : icon"
             :icon-position="iconPosition"
             :mask="mask ? mask : mode === 'date' ? '##.##.####' : '##.##.#### ##:##'"
             :has-modified="hasModified"
+            @icon-click="togglePopover"
+            @maska="maskCompletedCheck($event)"
           />
         </slot>
       </template>
@@ -53,23 +63,19 @@
 </template>
 
 <script setup lang="ts">
-import { nanoid } from 'nanoid'
-import { parse } from 'date-fns'
-
-const id = nanoid()
-
-const emit = defineEmits(['update:modelValue'])
-const localValue = defineModel<Date | string>('modelValue', {
-  default: new Date(),
-  get(value) {
-    if (value instanceof Date) {
-      return value
-    }
-    return parse(value, 'dd.MM.yyyy', new Date())
-  },
-})
-
+import { parse, format, isValid } from 'date-fns'
+const inputRef = ref<HTMLInputElement | null>(null)
+// Определяем свойства
 const props = defineProps({
+  modelValue: [Date, String, null],
+  mode: {
+    type: String,
+    default: 'date',
+    validator: (mode: string) => ['date', 'dateTime'].includes(mode),
+  },
+  id: {
+    type: String,
+  },
   label: {
     type: String,
     default: '',
@@ -81,11 +87,6 @@ const props = defineProps({
   mask: {
     type: String,
     default: '',
-  },
-  mode: {
-    type: String,
-    default: 'date',
-    validator: (mode: string) => ['date', 'dateTime'].includes(mode),
   },
   icon: {
     type: String,
@@ -100,7 +101,6 @@ const props = defineProps({
     default: 'right',
     validator: (size: string) => ['left', 'right'].includes(size),
   },
-  // modifiers
   error: {
     type: [String, Boolean],
     required: false,
@@ -117,8 +117,69 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isString: {
+    type: Boolean,
+    default: false,
+  },
 })
 
+// Определяем события
+const emit = defineEmits(['update:modelValue', 'maska'])
+
+// Локальное значение
+const localValue = ref<Date | null>(null)
+
+// Форматирование даты
+const parseDate = (value: string): Date | null => {
+  const formats = ['dd.MM.yyyy HH:mm:ss', 'dd.MM.yyyy HH:mm', 'dd.MM.yyyy']
+  for (const formatString of formats) {
+    const date = parse(value, formatString, new Date())
+    if (isValid(date)) {
+      return date
+    }
+  }
+  return null
+}
+
+// Отслеживаем завершенность ввода маски
+const maskCompletedCheck = ({ detail: { completed } }) => {
+  emit('maska', { detail: { completed } })
+}
+
+// Инициализация начального значения
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value === '01.01.1900' || value === '01.01.1900 00:00:00') {
+      localValue.value = null
+      return
+    }
+    if (value instanceof Date && isValid(value)) {
+      localValue.value = value
+    } else if (typeof value === 'string') {
+      localValue.value = parseDate(value)
+    } else {
+      localValue.value = null
+    }
+  },
+  { immediate: true },
+)
+
+// Синхронизация локального значения с `modelValue`
+watch(localValue, (value) => {
+  if (!value) {
+    emit('update:modelValue', null)
+  } else {
+    emit('update:modelValue', format(value, 'dd.MM.yyyy HH:mm:ss'))
+  }
+})
+
+// Очистка значения
+const clean = () => {
+  localValue.value = null
+}
+
+// Вычисляемые атрибуты
 const attributes = computed(() => {
   return [
     {
@@ -128,12 +189,25 @@ const attributes = computed(() => {
     },
   ]
 })
+const onEventGlobalFocus = (id: string) => {
+  if (!props.id || id !== props.id) return
+
+  inputRef.value?.focus()
+}
+// Отписываемся от события при уничтожении компонента
+onBeforeUnmount(() => {
+  EventBus.off(GlobalEvents.FocusElement, onEventGlobalFocus)
+})
+// Подписываемся на событие при монтировании
+onMounted(() => {
+  EventBus.on(GlobalEvents.FocusElement, onEventGlobalFocus)
+})
 </script>
 
 <style lang="scss" scoped>
 .ui-datepicker {
   :deep(.ui-input__icon) {
-   cursor: pointer;
+    cursor: pointer;
   }
   :deep(.vc-popover-content) {
     .vc-popover-content-wrapper {

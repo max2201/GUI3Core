@@ -1,19 +1,25 @@
 import { AddObjectToFavorites, DelObjectFromFavorites } from '../api/object.api'
-import type { FavoriteObject } from '../interface/Auth'
+import type { FavoriteModule, FavoriteObject } from '../interface/Auth'
 import type { IObjectDto } from '../interface/Object'
+import type { Layout } from 'grid-layout-plus'
 
 interface DashboardStoreState {
-  FavoritesModules: string[]
+  FavoritesModules: FavoriteModule[]
   FavoritesObjects: FavoriteObject[]
 }
 
 interface DashboardStoreInitPayload {
-  FavoritesModules: string[]
+  FavoritesModules: FavoriteModule[]
   FavoritesObjects: FavoriteObject[]
+  DashboardLayout?: Layout
 }
 
 export const useDashboardStore = defineStore('dashboard', {
-  state: (): { showNotifications: boolean; FavoritesModules: any[]; FavoritesObjects: any[] } => {
+  state: (): {
+    showNotifications: boolean
+    FavoritesModules: FavoriteModule[]
+    FavoritesObjects: any[]
+  } => {
     return {
       FavoritesModules: [],
       FavoritesObjects: [],
@@ -23,7 +29,9 @@ export const useDashboardStore = defineStore('dashboard', {
   getters: {
     isFavoriteModule: (state) => {
       return (FullViewId: string) => {
-        return Boolean(state.FavoritesModules.find((favModuleID) => favModuleID === FullViewId))
+        return Boolean(
+          state.FavoritesModules.find((favModuleID) => favModuleID.FullViewId === FullViewId),
+        )
       }
     },
     favoriteObjects(state) {
@@ -31,9 +39,12 @@ export const useDashboardStore = defineStore('dashboard', {
     },
   },
   actions: {
-    init({ FavoritesModules, FavoritesObjects }: DashboardStoreInitPayload) {
+    init({ FavoritesModules, FavoritesObjects, DashboardLayout }: DashboardStoreInitPayload) {
       this.FavoritesModules = FavoritesModules
       this.FavoritesObjects = FavoritesObjects.reverse()
+      if (DashboardLayout !== null) {
+        localStorage.setItem(LOCALSTORAGE.DashboardLayout, JSON.stringify(DashboardLayout))
+      }
 
       this.saveDashboardSettingsToLS()
     },
@@ -68,7 +79,7 @@ export const useDashboardStore = defineStore('dashboard', {
         }
       }
     },
-    updateFavoriteModules(newFavoriteModules: string[]) {
+    updateFavoriteModules(newFavoriteModules: FavoriteModule[]) {
       this.FavoritesModules = [...newFavoriteModules]
       this.saveDashboardSettingsToLS()
     },

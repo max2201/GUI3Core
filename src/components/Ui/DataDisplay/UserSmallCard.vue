@@ -35,7 +35,7 @@ const onClickArrow = (e: Event) => {
   display: grid;
   height: 24px;
   grid-template-rows: 24px;
-  grid-template-columns: 24px auto 24px;
+  grid-template-columns: 24px auto auto;
   align-items: center;
   gap: 6px;
 
