@@ -135,6 +135,12 @@
     "getTimePeriodLabelWithParams": true,
     "TimeSpanShiftDirection": true,
     "getAvailableStepPeriodTypes": true,
-    "getTimePeriodWithDirection": true
+    "getTimePeriodWithDirection": true,
+    "bootstrap": true,
+    "core": true,
+    "createModule": true,
+    "loadModules": true,
+    "registerModuleRoutes": true,
+    "registerModuleStores": true
   }
 }

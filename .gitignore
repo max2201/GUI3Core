@@ -32,3 +32,5 @@ coverage
 xlombard.zip
 package-lock.json!/.eslintrc-auto-import.json
 !/auto-imports.d.ts
+
+.qodo
